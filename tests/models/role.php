@@ -10,7 +10,7 @@ class Role extends \ORM\Model
 {
     function users()
     {
-        return $this->hasMany('User', 'users');
+        return $this->hasMany('User');
     }
 
     /**

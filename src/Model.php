@@ -602,13 +602,19 @@ abstract class Model
     }
 
     /**
-     * @param $className
-     * @return mixed
+     * @param \ORM|Model $className
+     * @param string $sortField
+     * @param bool $sortAsc
+     * @return \ORM|Model[]
      */
-    protected function hasMany($className)
+    protected function hasMany($className, $sortField = '', $sortAsc = true)
     {
+        if($sortField == '') {
+            $sortField = $className::getPrimaryKey();
+        }
+
         $foreignKey = static::getForeignKey();
-        return $className::findAll([$foreignKey], [$this->{static::getPrimaryKey()}]);
+        return $className::findAll([$foreignKey], [$this->{static::getPrimaryKey()}], $sortField, $sortAsc);
     }
 
     /**

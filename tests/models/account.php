@@ -10,7 +10,7 @@ class Account extends \ORM\Model
 {
     function user()
     {
-        return $this->belongsTo('User', 'users');
+        return $this->belongsTo('User');
     }
 
     static function getTable()
