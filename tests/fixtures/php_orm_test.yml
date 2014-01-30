@@ -1,0 +1,61 @@
+users:
+  -
+    id: 1
+    email: "email1@example.com"
+    first_name: "John"
+    last_name: "Doe"
+    role_id: 2
+  -
+    id: 2
+    email: "email2@example.com"
+    first_name: "Foo"
+    last_name: "Bar"
+    role_id: 1
+  -
+    id: 3
+    email: "email3@example.com"
+    first_name: "Foo3"
+    last_name: "Bar3"
+    role_id: 1
+
+roles:
+  -
+    id: 1
+    name: "User"
+  -
+    id: 2
+    name: "Admin"
+  -
+    id: 3
+    name: "Other"
+
+messages:
+  -
+    id: 1
+    title: "message #1"
+  -
+    id: 2
+    title: "message #2"
+
+messages_users:
+  -
+    id: 1
+    message_id: 1
+    user_id: 1
+  -
+    id: 2
+    message_id: 2
+    user_id: 1
+
+accounts:
+  -
+    id: 1
+    user_id: 1
+
+options:
+  -
+    user_id: 1
+    name: "test #1"
+  -
+    user_id: 2
+    name: "test #2"

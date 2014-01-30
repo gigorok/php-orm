@@ -1,0 +1,25 @@
+{
+    "name": "gigorok/php-orm"
+    , "description": "PHP ORM library"
+    , "license": "MIT"
+    , "type": "library"
+    , "homepage": "http://github.com/gigorok/php-orm"
+    , "authors": [
+        {
+            "name": "Igor Gonchar"
+            , "email": "gigorok@gmail.com"
+            , "homepage": "http://gigorok.name"
+        }
+    ]
+	, "autoload": {
+        "psr-4": { "ORM\\": "src/" }
+    }
+    , "require": {
+        "php": ">=5.4"
+        , "gigorok/inflector": "0.1.*"
+    }
+    , "require-dev": {
+        "phpunit/phpunit": "3.7.*"
+        , "phpunit/dbunit": "1.2.3"
+    }
+}
