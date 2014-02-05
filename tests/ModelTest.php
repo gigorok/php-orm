@@ -1,4 +1,5 @@
 <?php
+
 /**
  * php-orm
  *
@@ -6,7 +7,7 @@
  * @copyright 2014 Igor Gonchar
  */
 
-class ModelTest extends PHPUnit_Extensions_Database_TestCase
+class ModelTest extends \PHPUnit_Extensions_Database_TestCase
 {
     function setUp()
     {
@@ -19,13 +20,13 @@ class ModelTest extends PHPUnit_Extensions_Database_TestCase
 
     protected function getDataSet()
     {
-        return new PHPUnit_Extensions_Database_DataSet_YamlDataSet(
+        return new \PHPUnit_Extensions_Database_DataSet_YamlDataSet(
             implode(DIRECTORY_SEPARATOR, [__DIR__, "fixtures", "php_orm_test.yml"])
         );
     }
 
     /**
-     * @return PHPUnit_Extensions_Database_DB_IDatabaseConnection
+     * @return \PHPUnit_Extensions_Database_DB_IDatabaseConnection
      */
     public function getConnection()
     {
@@ -47,30 +48,6 @@ class ModelTest extends PHPUnit_Extensions_Database_TestCase
         $this->assertEquals(User::findOne(['email'], ['email1@example.com'])->email, 'email1@example.com');
         $this->assertEquals(User::findOne(['first_name', 'last_name'], ['John', 'Doe'])->email, 'email1@example.com');
         $this->assertCount(3, User::all());
-    }
-
-    function testDynamicallyFinders()
-    {
-        $this->assertEquals(User::findByEmail('email1@example.com')->email, 'email1@example.com');
-        $this->assertEquals(User::findByEmailAndFirstName('email1@example.com', 'John')->email, 'email1@example.com');
-        $this->assertEquals(User::findByEmailAndFirstNameAndLastName('email1@example.com', 'John', 'Doe')->email, 'email1@example.com');
-
-        $u = new User(['first_name' => 'John', 'email' => 'email10@example.com', 'role_id' => Role::first()->id]);
-        $isSaved = $u->save();
-
-        $this->assertNotEquals(false, $isSaved);
-
-        $this->assertEquals('email1@example.com', User::findAllByFirstName('John')[0]->email);
-        $this->assertEquals('email10@example.com', User::findAllByFirstName('John')[1]->email);
-        $this->assertInstanceOf('User', User::findAllByFirstName('John')[0]);
-        $this->assertEquals('email10@example.com', User::findAllByFirstNameAndEmail('John', 'email10@example.com')[0]->email);
-    }
-    /**
-     * @expectedException Exception
-     */
-    function testDynamicallyFindersFailure()
-    {
-        User::findByDomain('example.com'); // throw exception
     }
 
     public function testHasManyRelation()
@@ -102,6 +79,8 @@ class ModelTest extends PHPUnit_Extensions_Database_TestCase
         $this->assertTrue(User::last()->messages()->delete($ids[0]));
         $this->assertFalse(User::last()->messages()->has($ids[0]));
         $this->assertFalse(User::last()->messages()->has(Message::find($ids[0])));
+
+        // @todo test sync method
     }
 
     function testGetAttributes()
@@ -121,7 +100,6 @@ class ModelTest extends PHPUnit_Extensions_Database_TestCase
 
     function testGetSchema()
     {
-        $user = User::first();
         $this->assertEquals(
             [
                 'id' => 'LONG',
@@ -130,7 +108,7 @@ class ModelTest extends PHPUnit_Extensions_Database_TestCase
                 'last_name' => 'VAR_STRING',
                 'role_id' => 'LONG'
             ],
-            $user->schema()
+            User::schema()
         );
     }
 
@@ -211,18 +189,71 @@ class ModelTest extends PHPUnit_Extensions_Database_TestCase
 
     function testWhere()
     {
-        $u = new User([
-            'role_id' => 1,
-            'email' => 'email1235@example.com',
-            'first_name' => 'John',
-            'last_name' => 'Test',
-        ]);
-        $u->save();
+        $this->createNewUser();
         $this->assertCount(4, User::all());
         $users = User::where("first_name = ?", ['John']);
         $this->assertCount(2, $users);
         $users = User::where("first_name = ? OR last_name = ?", ['John', 'Bar3']);
         $this->assertCount(3, $users);
+    }
+
+    function testTransactions()
+    {
+        $this->assertCount(3, User::all());
+
+        \ORM\Model::beginTransaction();
+        $this->createNewUser();
+        \ORM\Model::rollback();
+
+        $this->assertCount(3, User::all());
+
+        \ORM\Model::beginTransaction();
+        $this->assertTrue(\ORM\Model::inTransaction());
+        $this->createNewUser();
+        \ORM\Model::commit();
+        $this->assertCount(4, User::all());
+    }
+
+    function testValidationErrors()
+    {
+        $u = $this->createNewUser(['role_id' => null]);
+        $this->assertSame("Role ID must be numeric", $u->getLastError());
+        $this->assertTrue($u->isInvalid());
+        $this->assertContains("Role ID must be numeric", $u->getErrors());
+    }
+
+    function testUpdate()
+    {
+        $u = $this->createNewUser(['id' => 27]);
+        $this->assertSame('email1235@example.com', $u->email);
+        $u->update(['email' => 'john@doe.com']);
+        $this->assertSame('john@doe.com', $u->email);
+        $this->assertSame('john@doe.com', User::find(27)->email);
+    }
+
+    function testCallbacks()
+    {
+        // @todo
+    }
+
+    function testProperties()
+    {
+        $properties = User::find(1)->properties();
+        $this->assertSame(['id', 'email', 'first_name', 'last_name', 'role_id'], $properties);
+    }
+
+    private function createNewUser($params = [])
+    {
+        $params = array_merge([
+            'role_id' => 1,
+            'email' => 'email1235@example.com',
+            'first_name' => 'John',
+            'last_name' => 'Test',
+        ], $params);
+        $u = new User($params);
+        $u->save();
+
+        return $u;
     }
 
 }

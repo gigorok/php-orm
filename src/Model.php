@@ -15,7 +15,120 @@ use \Inflector\Inflector as Inflector;
  */
 abstract class Model
 {
-    use Callbackable, Transactionable;
+    /**
+     * Initiates a transaction
+     *
+     * @return bool
+     */
+    static function beginTransaction()
+    {
+        return self::getDBO()->getPDO()->beginTransaction();
+    }
+
+    /**
+     * Commits a transaction
+     *
+     * @return bool
+     */
+    static function commit()
+    {
+        return self::getDBO()->getPDO()->commit();
+    }
+
+    /**
+     * Rolls back a transaction
+     *
+     * @return bool
+     */
+    static function rollback()
+    {
+        return self::getDBO()->getPDO()->rollBack();
+    }
+
+    /**
+     * Checks if inside a transaction
+     *
+     * @return bool
+     */
+    static function inTransaction()
+    {
+        return self::getDBO()->getPDO()->inTransaction();
+    }
+
+    /**
+     * Call before save, create, update actions
+     *
+     * @return bool
+     */
+    protected function beforeSave()                 { return true; }
+
+    /**
+     * Call before save (if validation was permitted), create, update actions
+     *
+     * @return bool
+     */
+    protected function beforeValidation()           { return true; }
+
+    /**
+     * Call before update action
+     *
+     * @return bool
+     */
+    protected function beforeUpdate()               { return true; }
+
+    /**
+     * Call before create action
+     *
+     * @return bool
+     */
+    protected function beforeCreate()               { return true; }
+
+    /**
+     * Call before destroy action
+     *
+     * @return bool
+     */
+    protected function beforeDestroy()              { return true; }
+
+    /**
+     * Call after save (if validation was permitted), create, update actions
+     *
+     * @param $isValid bool Is object is valid
+     * @return bool
+     */
+    protected function afterValidation($isValid)    { return $isValid; }
+
+    /**
+     * Call after save, create, update actions
+     *
+     * @param $isSaved bool
+     * @return bool
+     */
+    protected function afterSave($isSaved)          { return $isSaved; }
+
+    /**
+     * Call after update action
+     *
+     * @param $isUpdated bool
+     * @return bool
+     */
+    protected function afterUpdate($isUpdated)      { return $isUpdated; }
+
+    /**
+     * Call after create action
+     *
+     * @param $isCreated bool
+     * @return bool
+     */
+    protected function afterCreate($isCreated)      { return $isCreated; }
+
+    /**
+     * Call after destroy action
+     *
+     * @param $isDestroyed bool
+     * @return bool
+     */
+    protected function afterDestroy($isDestroyed)   { return $isDestroyed; }
 
     /**
      * Persisted option
@@ -87,7 +200,7 @@ abstract class Model
      *
      * @return string[]
      */
-    public function errorMessages()
+    public function getErrors()
     {
         return $this->errors;
     }
@@ -97,48 +210,9 @@ abstract class Model
      *
      * @return string
      */
-    function errorMessage()
+    function getLastError()
     {
         return end($this->errors);
-    }
-
-    /**
-     * Dynamically finders
-     *
-     * @param $method
-     * @param $params
-     * @return $this|$this[]|null
-     * @throws \Exception
-     */
-    public static function __callStatic($method, $params)
-    {
-        if(strpos($method, 'findAllBy') !== false) {
-            $fields = explode('And', str_ireplace('findAllBy', '', $method));
-            $class = get_called_class();
-
-            foreach($fields as &$field) {
-                $field = Inflector::underscore($field);
-                if(!in_array($field, static::properties())) {
-                    throw new \Exception("Property $field not found for class $class.");
-                }
-            }
-
-            return static::findAll($fields, $params);
-        }
-
-        if(strpos($method, 'findBy') !== false) {
-            $fields = explode('And', str_ireplace('findBy', '', $method));
-            $class = get_called_class();
-
-            foreach($fields as &$field) {
-                $field = Inflector::underscore($field);
-                if(!in_array($field, static::properties())) {
-                    throw new \Exception("Property $field not found for class $class.");
-                }
-            }
-
-            return static::findOne($fields, $params);
-        }
     }
 
     /** @var \ORM\DBO */
@@ -152,18 +226,18 @@ abstract class Model
      */
     static function getDBO()
     {
-        if(!self::$dbo) {
+        if(!static::$dbo) {
             throw new \Exception('DBO must be configured before');
         }
 
-        return self::$dbo;
+        return static::$dbo;
     }
 
     /**
      * Returns an array of all the attributes with their names as keys and the values of the attributes as values.
      *
      * @param bool $reload
-     * @return array
+     * @return string[]
      */
     function attributes($reload = false)
     {
@@ -238,7 +312,7 @@ abstract class Model
                 $result = self::getDBO()->insertObject(static::getTable(), $this->attributes(), static::getPrimaryKey());
                 $this->is_persisted = true;
             } else {
-                $result = self::getDBO()->updateObject(static::getTable(), $this->attributes(), static::getPrimaryKey());
+                $result = self::getDBO()->updateObject(static::getTable(), $this->attributes(true), static::getPrimaryKey());
             }
         } catch(\Exception $e) {
             $this->addError($e->getMessage());
@@ -306,11 +380,7 @@ abstract class Model
         $c = get_called_class();
         foreach ($array as $key => $value) {
             if(in_array($key, $c::$accessible)) { // bind only accessible parameters
-                if(is_array($value) || is_object($value)) {
-                    $this->bind($value);
-                } else {
-                    $this->$key = $value;
-                }
+                $this->$key = $value;
             }
         }
 
@@ -432,7 +502,7 @@ abstract class Model
      * Find record by primary key
      *
      * @param $value
-     * @return $this|bool
+     * @return $this|null
      */
     static function find($value)
     {
@@ -440,7 +510,7 @@ abstract class Model
         if($result) {
             $result->is_persisted = true;
         }
-        return $result;
+        return $result ?: null;
     }
 
     /**
@@ -448,7 +518,7 @@ abstract class Model
      *
      * @param array $fields
      * @param array $values
-     * @return mixed
+     * @return int
      */
     static function count($fields = [], $values = [])
     {
@@ -513,7 +583,7 @@ abstract class Model
      *
      * @param array $fields
      * @param array $values
-     * @return bool|$this
+     * @return $this|null
      */
     static function findOne($fields = [], $values = [])
     {
@@ -525,7 +595,7 @@ abstract class Model
             return $result;
         }
 
-        return false;
+        return null;
     }
 
     /**
@@ -533,7 +603,7 @@ abstract class Model
      * @param bool $sortAsc
      * @param null $limit
      * @param int $offset
-     * @return mixed
+     * @return $this[]
      */
     static function all($sortField = '', $sortAsc = true, $limit = null, $offset = 0)
 	{
@@ -552,8 +622,10 @@ abstract class Model
 	}
 
     /**
+     * Return n last records
+     *
      * @param int $limit
-     * @return $this|array
+     * @return $this|$this[]
      */
     static function last($limit = 1)
 	{
@@ -566,7 +638,7 @@ abstract class Model
 	}
 
     /**
-     * This will return the first record
+     * Return n first records
      *
      * @param int $limit
      * @return $this|$this[]
@@ -582,7 +654,9 @@ abstract class Model
     }
 
     /**
-     * @param $className
+     * Has And Belongs To Many association
+     *
+     * @param string $className
      * @param string $tableName
      * @param string $foreignKey
      * @param string $foreignKeyRelated
@@ -602,7 +676,9 @@ abstract class Model
     }
 
     /**
-     * @param \ORM|Model $className
+     * Has Many association
+     *
+     * @param string $className
      * @param string $sortField
      * @param bool $sortAsc
      * @return \ORM|Model[]
@@ -618,18 +694,21 @@ abstract class Model
     }
 
     /**
-     * @param $className
-     * @return mixed
+     * Has One association
+     *
+     * @param string $className
+     * @return |ORM|Model|null
      */
     protected function hasOne($className)
     {
-        $foreignKey = static::getForeignKey();
-        return $className::findOne([$foreignKey], [$this->{static::getPrimaryKey()}]);
+        return $className::findOne([static::getForeignKey()], [$this->{static::getPrimaryKey()}]);
     }
 
     /**
-     * @param $className
-     * @return mixed
+     * Belongs To association
+     *
+     * @param string $className
+     * @return |ORM|Model|null
      */
     protected function belongsTo($className)
     {
@@ -638,6 +717,8 @@ abstract class Model
     }
 
     /**
+     * Get instance's properties
+     *
      * @return array
      */
     static function properties()

@@ -47,6 +47,8 @@ class User extends \ORM\Model
      */
     protected function validate()
     {
-        // TODO: Implement validate() method.
+        if(!is_numeric($this->role_id)) {
+            $this->addError('Role ID must be numeric');
+        }
     }
 }

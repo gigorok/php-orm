@@ -13,18 +13,54 @@ namespace ORM;
  */
 abstract class DBO
 {
+    /**
+     * Hostname
+     *
+     * @var string
+     */
     protected $host = 'localhost';
+
+    /**
+     * Port
+     *
+     * @var string
+     */
     protected $port = '3306';
+
+    /**
+     * Database name
+     *
+     * @var string
+     */
     protected $dbname = '';
 
-	protected $username = 'root';
-	protected $password = '';
-	protected $charset = 'utf8';
+    /**
+     * Username
+     *
+     * @var string
+     */
+    protected $username = 'root';
+
+    /**
+     * Password
+     *
+     * @var string
+     */
+    protected $password = '';
+
+    /**
+     * Charset
+     *
+     * @var string
+     */
+    protected $charset = 'utf8';
 
     /** @var \PDO */
 	protected $pdo = null;
 
     /**
+     * Get PHP PDO instance
+     *
      * @return \PDO
      */
     function getPDO()
@@ -34,6 +70,16 @@ abstract class DBO
         return $this->pdo;
     }
 
+    /**
+     * Constructor
+     *
+     * @param string $host
+     * @param string $port
+     * @param string $dbname
+     * @param string $username
+     * @param string $password
+     * @param string $charset
+     */
     public function __construct($host = null, $port = null, $dbname = null, $username = null, $password = null, $charset = null)
     {
         if (isset($host)) $this->host = $host;
@@ -61,7 +107,10 @@ abstract class DBO
 		}
 	}
 
-	abstract protected function makeDsn();
+    /**
+     * @return string
+     */
+    abstract protected function makeDsn();
 
     /**
      * Remove outer quotes from a string
@@ -90,9 +139,10 @@ abstract class DBO
 	}
 
 	/**
-	* Are we currently connected to the database
-	* @return bool we are connected
-	*/
+	 * Are we currently connected to the database
+     *
+	 * @return bool we are connected
+	 */
 	function isConnected()
 	{
 		return ($this->pdo !== null);
@@ -100,6 +150,7 @@ abstract class DBO
 
     /**
      * Run a statement on the database
+     *
      * @param $query
      * @param array $values
      * @return mixed
@@ -113,25 +164,28 @@ abstract class DBO
 		return $statement->execute((array)$values); //this array cast allows single values to be used as the parameter
 	}
 
-	/**
-	* Allow a value to be escaped, ready for insertion as a mysql parameter
-	* Note: for usage as a value (rather than prepared statements), you MUST manually quote around
-	* @param {string} value
-	* @return {string} mysql safe value
-	*/
-	function escape($str) 
+    /**
+     * Allow a value to be escaped
+     *
+     * @param $str
+     * @return string
+     */
+    function escape($str)
 	{
 		if (!$this->isConnected()) $this->connect();
 
 		return $this->unquote_outer($this->pdo->quote((string)$str));
 	}
 
-	/**
-	* Get a quick number of objects in a table
-	* @param {string} table name
-	* @return {integer} number of objects
-	*/
-	function numObjects($table, $field = [], $value = [])
+    /**
+     * Get a quick number of objects in a table
+     *
+     * @param $table
+     * @param array $field
+     * @param array $value
+     * @return string
+     */
+    function numObjects($table, $field = [], $value = [])
 	{
 		if (!$this->isConnected()) $this->connect();
 
@@ -156,15 +210,15 @@ abstract class DBO
 		return $statement->fetchColumn();
 	}
 
-	/**
-	* Update an object in a table with values given
-	*
-	* Note: the id of the object is assumed to be in
-	* @param {string} name of table
-	* @param {object} new values for the object (can use an assoc array)
-	* @return {boolean} object updated sucessfully
-	*/
-	function updateObject($table, array $obj, $primaryKey = 'id')
+    /**
+     * Update an object in a table with values given
+     *
+     * @param $table
+     * @param array $obj
+     * @param string $primaryKey
+     * @return bool
+     */
+    function updateObject($table, array $obj, $primaryKey = 'id')
 	{
 		if (!$this->isConnected()) $this->connect();
 
@@ -202,9 +256,11 @@ abstract class DBO
 
     /**
      * Insert an object into a table
+     *
      * @param $table
-     * @param $obj
-     * @return bool
+     * @param array $obj
+     * @param string $primaryKey
+     * @return bool|string
      * @throws \PDOException
      */
     function insertObject($table, array $obj, $primaryKey = 'id')
@@ -238,7 +294,7 @@ abstract class DBO
 
         $statement = $this->pdo->prepare($sql);
 
-        for($i=1; $i<=count($objValues); $i++) {
+        for($i = 1; $i <= count($objValues); $i++) {
             $statement->bindParam($i, $objValues[$i-1]);
         }
 
@@ -254,22 +310,27 @@ abstract class DBO
 		return $this->pdo->lastInsertId();
 	}
 
-	public function quote($key)
+    /**
+     * @param $key
+     * @return string
+     */
+    public function quote($key)
 	{
 		return '`' . $key . '`';
 	}
 
-	/**
-	* Get a filtered list of objects from the database
-	* @param {string} table name
-	* @param {string} prepared query (optional)
-	* @param {array} values to use in query (optional)
-	* @param {int} offset (optional)
-	* @param {int} number of objects to get (optional)
-	* @param {string} return objects class (optional)
-	* @return {array} list of objects
-	*/
-	function getObjects($tableName, $sortField = 'id', $sortAsc = true, $numRecords = null, $offset = 0, $class = 'stdClass') 
+    /**
+     * Get a filtered list of objects from the database
+     *
+     * @param $tableName
+     * @param string $sortField
+     * @param bool $sortAsc
+     * @param null $numRecords
+     * @param int $offset
+     * @param string $class
+     * @return array
+     */
+    function getObjects($tableName, $sortField = 'id', $sortAsc = true, $numRecords = null, $offset = 0, $class = 'stdClass')
 	{
 		if (!$this->isConnected()) $this->connect();
 
@@ -301,7 +362,13 @@ abstract class DBO
 		return $results;
 	}
 
-	function getObjectsQuery($query = null, $values = [], $class = 'stdClass')
+    /**
+     * @param null $query
+     * @param array $values
+     * @param string $class
+     * @return array
+     */
+    function getObjectsQuery($query = null, $values = [], $class = 'stdClass')
 	{
 		if (!$this->isConnected()) $this->connect();
 
@@ -321,9 +388,11 @@ abstract class DBO
 
     /**
      * Get a single object from the database
+     *
      * @param $table
      * @param $id
      * @param string $class
+     * @param string $primaryKey
      * @return mixed
      */
     function getObject($table, $id, $class = 'stdClass', $primaryKey = 'id')
@@ -337,7 +406,14 @@ abstract class DBO
         return $statement->fetchObject($class);
 	}
 
-	function getObjectQuery($query = null, $values = [], $class = 'stdClass')
+    /**
+     * @param null $query
+     * @param array $values
+     * @param string $class
+     * @return mixed|null
+     * @throws \PDOException
+     */
+    function getObjectQuery($query = null, $values = [], $class = 'stdClass')
 	{
 		if (!$this->isConnected()) $this->connect();
 
@@ -358,7 +434,18 @@ abstract class DBO
 		}
 	}
 
-	function findObjects($table, $field, $value, $sortField = 'id', $sortAsc = true, $limit = null, $offset = 0, $class = 'stdClass')
+    /**
+     * @param $table
+     * @param $field
+     * @param $value
+     * @param string $sortField
+     * @param bool $sortAsc
+     * @param null $limit
+     * @param int $offset
+     * @param string $class
+     * @return array
+     */
+    function findObjects($table, $field, $value, $sortField = 'id', $sortAsc = true, $limit = null, $offset = 0, $class = 'stdClass')
 	{
 		$table = $this->escape($table);
 		if(is_array($field)) {
@@ -393,7 +480,14 @@ abstract class DBO
 		return $this->getObjectsQuery($sql, $value, $class);
 	}
 
-	function findObject($table, $field, $value, $class = 'stdClass')
+    /**
+     * @param $table
+     * @param $field
+     * @param $value
+     * @param string $class
+     * @return mixed|null
+     */
+    function findObject($table, $field, $value, $class = 'stdClass')
 	{
         $where = [];
         foreach ($field as $key => $v) {
@@ -412,13 +506,15 @@ abstract class DBO
 		return $this->getObjectQuery($sql, $value, $class);
 	}
 
-	/**
-	* Delete an object from the database
-	* @param {string} table name
-	* @param {int} object id
-	* @return {boolean} success
-	*/
-	function deleteObject($tableName, $id, $primaryKey = 'id')
+    /**
+     * Delete an object from the database
+     *
+     * @param $tableName
+     * @param $id
+     * @param string $primaryKey
+     * @return mixed
+     */
+    function deleteObject($tableName, $id, $primaryKey = 'id')
 	{
         $tableName = $this->escape($tableName);
         $field = $this->escape($primaryKey);

@@ -37,7 +37,14 @@ class HasAndBelongsToMany
      */
     private $model;
 
+    /**
+     * @var string
+     */
     private $foreignKey;
+
+    /**
+     * @var string
+     */
     private $foreignKeyRelated;
 
     /**
@@ -59,12 +66,18 @@ class HasAndBelongsToMany
         $this->foreignKeyRelated = $foreignKeyRelated;
     }
 
+    /**
+     * @return string
+     */
     function getForeignKey()
     {
         $model = $this->model;
         return $this->foreignKey ?: $model::getForeignKey();
     }
 
+    /**
+     * @return string
+     */
     function getForeignKeyRelated()
     {
         $className = $this->className;
@@ -76,7 +89,7 @@ class HasAndBelongsToMany
      *
      * @param array $fields
      * @param array $values
-     * @return array
+     * @return \ORM\Model[]
      */
     function get($fields = [], $values = [])
     {
@@ -103,25 +116,23 @@ class HasAndBelongsToMany
 
         $result = Model::getDBO()->getObjectsQuery($query, array_merge([$model->{$model::getPrimaryKey()}], $values), $className);
 
+        $newResult = [];
+
         if($result) {
-            $newResult = [];
             foreach($result as $o) {
                 $o->is_persisted = true;
                 $newResult[] = $o;
             }
-
-            return $newResult;
         }
 
-        return $result;
+        return $newResult;
     }
 
     /**
      * Has related object with ID=$id
      *
-     * @param $payload
+     * @param \ORM\Model|int $payload
      * @throws \Exception
-     * @internal param $id
      * @return bool
      */
     function has($payload)
@@ -161,6 +172,7 @@ class HasAndBelongsToMany
      */
     function insert(array $rows)
     {
+        // normalize rows
         if(!is_array($rows)) {
             $rows = [$rows];
         }
@@ -181,7 +193,7 @@ class HasAndBelongsToMany
     /**
      * Attach related object with ID=$id
      *
-     * @param $payload
+     * @param \ORM\Model|int $payload
      * @throws \Exception
      * @return bool
      */
@@ -280,7 +292,7 @@ PIVOT;
     /**
      * Delete relations
      *
-     * @param null|\ORM\Model $payload
+     * @param int|\ORM\Model $payload
      * @return bool
      */
     function delete($payload = null)

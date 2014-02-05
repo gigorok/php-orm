@@ -7,9 +7,16 @@
  */
 namespace ORM\DBO;
 
+/**
+ * Class MySQL
+ * @package ORM\DBO
+ */
 class MySQL extends \ORM\DBO
 {
-	protected function makeDsn() 
+    /**
+     * @return string
+     */
+    protected function makeDsn()
 	{
 		return 'mysql:host=' . $this->host . ';port=' . $this->port . ';dbname=' . $this->dbname . ';charset=' . $this->charset;
 	}
