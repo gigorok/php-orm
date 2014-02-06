@@ -242,10 +242,52 @@ class ModelTest extends \PHPUnit_Extensions_Database_TestCase
         $this->assertSame(['id', 'email', 'first_name', 'last_name', 'role_id'], $properties);
     }
 
+    function testFindOrInitializeBy()
+    {
+        $u = $this->createNewUser(['email' => 'email11111@example.com']);
+        $u2 = User::findOrInitializeBy(['email'], ['email11111@example.com']);
+
+        $this->assertSame($u->first_name, $u2->first_name);
+        $this->assertSame($u->last_name, $u2->last_name);
+        $this->assertSame($u->role_id, $u2->role_id);
+        $this->assertSame($u->id, $u2->id);
+        $this->assertTrue($u2->isPersisted());
+
+        $u3 = User::findOrInitializeBy(['email'], ['email22222@example.com']);
+        $this->assertFalse($u3->isPersisted());
+    }
+
+    function testFindOrCreateBy()
+    {
+        $u = $this->createNewUser(['email' => 'email11111@example.com']);
+        $u2 = User::findOrCreateBy(['email'], ['email11111@example.com']);
+
+        $this->assertSame($u->first_name, $u2->first_name);
+        $this->assertSame($u->last_name, $u2->last_name);
+        $this->assertSame($u->role_id, $u2->role_id);
+        $this->assertSame($u->id, $u2->id);
+        $this->assertTrue($u2->isPersisted());
+
+        $u3 = User::findOrCreateBy(['email', 'role_id'], ['email22222@example.com', '1']);
+
+        $this->assertCount(5, User::all());
+        $this->assertTrue($u3->isPersisted());
+    }
+
+    function testDestroyBy()
+    {
+        $this->createNewUser(['email' => 'email11111@example.com']);
+        $this->assertCount(4, User::all());
+        User::destroyBy(['email'], ['email11111@example.com']);
+        $this->assertCount(3, User::all());
+        User::destroyBy(['first_name'], ['John']);
+        $this->assertCount(2, User::all());
+    }
+
     private function createNewUser($params = [])
     {
         $params = array_merge([
-            'role_id' => 1,
+            'role_id' => '1',
             'email' => 'email1235@example.com',
             'first_name' => 'John',
             'last_name' => 'Test',

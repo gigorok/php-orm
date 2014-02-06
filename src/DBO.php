@@ -523,4 +523,31 @@ abstract class DBO
         return $this->runQuery('DELETE FROM '.$this->quote($tableName).' WHERE '.$this->quote($field).' = ?;', array($value));
     }
 
+    /**
+     * Delete a list of objects from the database
+     *
+     * @param string $table
+     * @param $field
+     * @param $value
+     * @return mixed
+     */
+    function deleteObjects($table, $field, $value)
+    {
+        $where = [];
+        foreach ($field as $key => $v) {
+            $field[$key] = $this->escape($v);
+            if(is_null($value[$key])) {
+                $where[] = $this->quote($field[$key]) . ' IS NULL';
+                unset($value[$key]);
+            } else {
+                $where[] = $this->quote($field[$key]) . ' = ?';
+            }
+        }
+        $whereStr = implode(' AND ', $where);
+
+        $sql = 'DELETE FROM ' . $this->quote($table) . ' WHERE ' . $whereStr;
+
+        return $this->runQuery($sql, $value);
+    }
+
 }

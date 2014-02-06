@@ -309,7 +309,7 @@ abstract class Model
 		}
         try {
             if($this->isNew()) {
-                $result = self::getDBO()->insertObject(static::getTable(), $this->attributes(), static::getPrimaryKey());
+                $result = self::getDBO()->insertObject(static::getTable(), $this->attributes(true), static::getPrimaryKey());
                 $this->is_persisted = true;
             } else {
                 $result = self::getDBO()->updateObject(static::getTable(), $this->attributes(true), static::getPrimaryKey());
@@ -451,6 +451,18 @@ abstract class Model
         $this->performAfterCallback('afterDestroy', $result);
 
         return $result;
+    }
+
+    /**
+     * Destroy objects by conditions
+     *
+     * @param array $fields
+     * @param array $values
+     * @return bool
+     */
+    static function destroyBy($fields = [], $values = [])
+    {
+        return self::getDBO()->deleteObjects(static::getTable(), $fields, $values);
     }
 
     /**
@@ -596,6 +608,53 @@ abstract class Model
         }
 
         return null;
+    }
+
+    /**
+     * Find or initialize by conditions
+     *
+     * @param array $fields
+     * @param array $values
+     * @return \ORM\Model|null
+     */
+    static function findOrInitializeBy($fields = [], $values = [])
+    {
+        $result = self::findOne($fields, $values);
+
+        if(!is_null($result)) {
+            return $result;
+        }
+        // initialize new instance
+
+        $class_name = get_called_class();
+        /** @var \ORM\Model $new_instance */
+        $new_instance = new $class_name();
+        $new_instance->bind(array_combine($fields, $values));
+        return $new_instance;
+    }
+
+    /**
+     * Find or create by conditions
+     *
+     * @param array $fields
+     * @param array $values
+     * @return null|Model
+     */
+    static function findOrCreateBy($fields = [], $values = [])
+    {
+        $result = self::findOne($fields, $values);
+
+        if(!is_null($result)) {
+            return $result;
+        }
+        // new instance
+
+        $class_name = get_called_class();
+        /** @var \ORM\Model $new_instance */
+        $new_instance = new $class_name();
+        $new_instance->create(array_combine($fields, $values));
+
+        return $new_instance;
     }
 
     /**
