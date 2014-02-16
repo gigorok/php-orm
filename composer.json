@@ -1,6 +1,7 @@
 {
     "name": "gigorok/php-orm"
-    , "description": "PHP ORM library"
+    , "description": "The open source ORM library"
+    , "keywords": ["orm", "php"]
     , "license": "MIT"
     , "type": "library"
     , "homepage": "http://github.com/gigorok/php-orm"
