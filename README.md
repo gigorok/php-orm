@@ -92,3 +92,6 @@ the record in your database but you can still use the object if you need to.
 ## License
 
 Licensed under the MIT license.
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/gigorok/php-orm/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
