@@ -114,18 +114,7 @@ class HasAndBelongsToMany
                     LEFT JOIN $this->tableName ON $tableName.$pKey = $this->tableName.$fk1
                     WHERE $this->tableName.$fk2 = ? $conditionsStr";
 
-        $result = Model::getDBO()->getObjectsQuery($query, array_merge([$model->{$model::getPrimaryKey()}], $values), $className);
-
-        $newResult = [];
-
-        if($result) {
-            foreach($result as $o) {
-                $o->is_persisted = true;
-                $newResult[] = $o;
-            }
-        }
-
-        return $newResult;
+        return Model::getDBO()->getObjectsQuery($query, array_merge([$model->{$model::getPrimaryKey()}], $values), $className);
     }
 
     /**

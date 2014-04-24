@@ -558,14 +558,7 @@ abstract class Model
             return self::all($sortField, $sortAsc, $limit, $offset);
         }
 
-        $result = self::getDBO()->findObjects(static::getTable(), $fields, $values, $sortField, $sortAsc, $limit, $offset, get_called_class());
-        $newResult = [];
-        foreach($result as $c) {
-            $c->is_persisted = true;
-            $newResult[] = $c;
-        }
-
-        return $newResult;
+        return self::getDBO()->findObjects(static::getTable(), $fields, $values, $sortField, $sortAsc, $limit, $offset, get_called_class());
     }
 
     /**
@@ -580,14 +573,7 @@ abstract class Model
     {
         $query = "SELECT * FROM " . static::getTable() . " WHERE " . $whereStr;
 
-        $result = self::getDBO()->getObjectsQuery($query, $values, get_called_class());
-        $newResult = [];
-        foreach($result as $c) {
-            $c->is_persisted = true;
-            $newResult[] = $c;
-        }
-
-        return $newResult;
+        return self::getDBO()->getObjectsQuery($query, $values, get_called_class());
     }
 
     /**
@@ -600,11 +586,7 @@ abstract class Model
     static function findOne($fields = [], $values = [])
     {
         if(count($fields) > 0) {
-            $result = self::getDBO()->findObject(static::getTable(), $fields, $values, get_called_class());
-            if($result) {
-                $result->is_persisted = true;
-            }
-            return $result;
+            return self::getDBO()->findObject(static::getTable(), $fields, $values, get_called_class());
         }
 
         return null;
@@ -630,6 +612,7 @@ abstract class Model
         /** @var \ORM\Model $new_instance */
         $new_instance = new $class_name();
         $new_instance->bind(array_combine($fields, $values));
+
         return $new_instance;
     }
 
@@ -670,14 +653,7 @@ abstract class Model
             $sortField = static::getPrimaryKey();
         }
 
-        $result = self::getDBO()->getObjects(static::getTable(), $sortField, $sortAsc, $limit, $offset, get_called_class());
-        $newResult = [];
-        foreach($result as $c) {
-            $c->is_persisted = true;
-            $newResult[] = $c;
-        }
-
-        return $newResult;
+        return self::getDBO()->getObjects(static::getTable(), $sortField, $sortAsc, $limit, $offset, get_called_class());
 	}
 
     /**

@@ -355,6 +355,7 @@ abstract class DBO
 
 		if (is_object($statement)) {
 			while ($newObj = $statement->fetchObject($class)) {
+                $newObj->is_persisted = true;
 				$results[] = $newObj;
 			}
 		}
@@ -379,6 +380,7 @@ abstract class DBO
 
 		if (is_object($statement)) {
 			while ($newObj = $statement->fetchObject($class)) {
+                $newObj->is_persisted = true;
 				$results[] = $newObj;
 			}
 		}
@@ -430,6 +432,7 @@ abstract class DBO
 		if ($resultObj === false) {
 			return null;
 		} else {
+            $resultObj->is_persisted = true;
 			return $resultObj;
 		}
 	}
