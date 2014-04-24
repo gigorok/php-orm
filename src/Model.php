@@ -569,9 +569,9 @@ abstract class Model
      * @param array $values
      * @return $this[]
      */
-    static function where($whereStr, $values = [])
+    static function where($whereStr, $values = [], $sortField = 'id', $sortAsc = true)
     {
-        $query = "SELECT * FROM " . static::getTable() . " WHERE " . $whereStr;
+        $query = "SELECT * FROM " . static::getTable() . " WHERE " . $whereStr . " ORDER BY " . $sortField . ($sortAsc ? ' ASC' : ' DESC');
 
         return self::getDBO()->getObjectsQuery($query, $values, get_called_class());
     }
