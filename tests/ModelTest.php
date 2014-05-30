@@ -7,32 +7,8 @@
  * @copyright 2014 Igor Gonchar
  */
 
-class ModelTest extends \PHPUnit_Extensions_Database_TestCase
+class ModelTest extends \BaseTest
 {
-    function setUp()
-    {
-        \ORM\Model::$dbo = new \ORM\DBO\MySQL(DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASS);
-
-        User::$accessible = ['id', 'email', 'first_name', 'last_name', 'role_id'];
-
-        parent::setUp();
-    }
-
-    protected function getDataSet()
-    {
-        return new \PHPUnit_Extensions_Database_DataSet_YamlDataSet(
-            implode(DIRECTORY_SEPARATOR, [__DIR__, "fixtures", "php_orm_test.yml"])
-        );
-    }
-
-    /**
-     * @return \PHPUnit_Extensions_Database_DB_IDatabaseConnection
-     */
-    public function getConnection()
-    {
-        return $this->createDefaultDBConnection(new \PDO('mysql:dbname=' . DB_NAME . ';host=' . DB_HOST . ';port=' . DB_PORT, DB_USER, DB_PASS));
-    }
-
     function testTableName()
     {
         $this->assertEquals(User::getTable(), 'users');
@@ -85,6 +61,7 @@ class ModelTest extends \PHPUnit_Extensions_Database_TestCase
 
     function testGetAttributes()
     {
+        /** @var $user \ORM\Model */
         $user = User::first();
         $this->assertEquals(
             [
@@ -214,14 +191,6 @@ class ModelTest extends \PHPUnit_Extensions_Database_TestCase
         $this->assertCount(4, User::all());
     }
 
-    function testValidationErrors()
-    {
-        $u = $this->createNewUser(['role_id' => null]);
-        $this->assertSame("Role ID must be numeric", $u->getLastError());
-        $this->assertTrue($u->isInvalid());
-        $this->assertContains("Role ID must be numeric", $u->getErrors());
-    }
-
     function testUpdate()
     {
         $u = $this->createNewUser(['id' => 27]);
@@ -247,10 +216,10 @@ class ModelTest extends \PHPUnit_Extensions_Database_TestCase
         $u = $this->createNewUser(['email' => 'email11111@example.com']);
         $u2 = User::findOrInitializeBy(['email'], ['email11111@example.com']);
 
-        $this->assertSame($u->first_name, $u2->first_name);
-        $this->assertSame($u->last_name, $u2->last_name);
-        $this->assertSame($u->role_id, $u2->role_id);
-        $this->assertSame($u->id, $u2->id);
+        $this->assertEquals($u->first_name, $u2->first_name);
+        $this->assertEquals($u->last_name, $u2->last_name);
+        $this->assertEquals($u->role_id, $u2->role_id);
+        $this->assertEquals($u->id, $u2->id);
         $this->assertTrue($u2->isPersisted());
 
         $u3 = User::findOrInitializeBy(['email'], ['email22222@example.com']);
@@ -262,13 +231,13 @@ class ModelTest extends \PHPUnit_Extensions_Database_TestCase
         $u = $this->createNewUser(['email' => 'email11111@example.com']);
         $u2 = User::findOrCreateBy(['email'], ['email11111@example.com']);
 
-        $this->assertSame($u->first_name, $u2->first_name);
-        $this->assertSame($u->last_name, $u2->last_name);
-        $this->assertSame($u->role_id, $u2->role_id);
-        $this->assertSame($u->id, $u2->id);
+        $this->assertEquals($u->first_name, $u2->first_name);
+        $this->assertEquals($u->last_name, $u2->last_name);
+        $this->assertEquals($u->role_id, $u2->role_id);
+        $this->assertEquals($u->id, $u2->id);
         $this->assertTrue($u2->isPersisted());
 
-        $u3 = User::findOrCreateBy(['email', 'role_id'], ['email22222@example.com', '1']);
+        $u3 = User::findOrCreateBy(['email', 'role_id'], ['email22222@example.com', 1]);
 
         $this->assertCount(5, User::all());
         $this->assertTrue($u3->isPersisted());
@@ -287,7 +256,7 @@ class ModelTest extends \PHPUnit_Extensions_Database_TestCase
     private function createNewUser($params = [])
     {
         $params = array_merge([
-            'role_id' => '1',
+            'role_id' => 1,
             'email' => 'email1235@example.com',
             'first_name' => 'John',
             'last_name' => 'Test',

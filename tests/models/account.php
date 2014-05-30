@@ -13,16 +13,5 @@ class Account extends \ORM\Model
         return $this->belongsTo('User');
     }
 
-    static function getTable()
-    {
-        return 'accounts';
-    }
-
-    /**
-     * @return bool
-     */
-    protected function validate()
-    {
-        // TODO: Implement validate() method.
-    }
+    static $table_name = 'accounts';
 }

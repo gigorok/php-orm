@@ -12,12 +12,4 @@ class Role extends \ORM\Model
     {
         return $this->hasMany('User');
     }
-
-    /**
-     * @return bool
-     */
-    protected function validate()
-    {
-        // TODO: Implement validate() method.
-    }
 }

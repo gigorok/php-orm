@@ -10,17 +10,6 @@ class Option extends \ORM\Model
 {
     static $accessible = ['user_id', 'name'];
 
-    /**
-     * @return bool
-     */
-    protected function validate()
-    {
-        // TODO: Implement validate() method.
-    }
-
-    static function getPrimaryKey()
-    {
-        return 'user_id';
-    }
+    static $primary_key = 'user_id';
 
 }

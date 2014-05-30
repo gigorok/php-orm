@@ -16,6 +16,21 @@ use \Inflector\Inflector as Inflector;
 abstract class Model
 {
     /**
+     * Add Validation module supporting
+     */
+    use Validation;
+
+    /**
+     * @var string|null
+     */
+    static $primary_key = null;
+
+    /**
+     * @var string|null
+     */
+    static $table_name = null;
+
+    /**
      * Initiates a transaction
      *
      * @return bool
@@ -159,11 +174,11 @@ abstract class Model
     public static $accessible = [];
 
     /**
-     * Validation and database errors
+     * Validation errors
      *
-     * @var array
+     * @var Errors
      */
-    protected $errors = [];
+    protected $errors = null;
 
     /**
      * Get name of primary key
@@ -172,7 +187,7 @@ abstract class Model
      */
     static function getPrimaryKey()
     {
-        return 'id';
+        return is_null(static::$primary_key) ? 'id' : static::$primary_key;
     }
 
     /**
@@ -182,23 +197,24 @@ abstract class Model
      */
     static function getTable()
     {
-        return Inflector::tableize(get_called_class());
+        return is_null(static::$table_name) ? Inflector::tableize(get_called_class()) : static::$table_name;
     }
 
     /**
      * Add validation error
      *
      * @param string $error_msg
+     * @param string|null $attribute
      */
-    public function addError($error_msg)
+    public function addError($error_msg, $attribute = null)
     {
-        $this->errors[] = $error_msg;
+        $this->errors->add($attribute, $error_msg);
     }
 
     /**
      * Return validation errors
      *
-     * @return string[]
+     * @return Errors
      */
     public function getErrors()
     {
@@ -212,7 +228,9 @@ abstract class Model
      */
     function getLastError()
     {
-        return end($this->errors);
+        $errors = $this->errors->fullMessages();
+
+        return end($errors);
     }
 
     /** @var \ORM\DBO */
@@ -278,7 +296,11 @@ abstract class Model
      */
     function __construct($params = [])
     {
+        // initialize errors object
+        $this->errors = new Errors();
+
         $this->bind($params);
+
         return $this;
     }
 
@@ -307,18 +329,10 @@ abstract class Model
 		if($validate && !$this->performValidation()) { // call validation with callbacks
 			return false;
 		}
-        try {
-            if($this->isNew()) {
-                $result = self::getDBO()->insertObject(static::getTable(), $this->attributes(true), static::getPrimaryKey());
-                $this->is_persisted = true;
-            } else {
-                $result = self::getDBO()->updateObject(static::getTable(), $this->attributes(true), static::getPrimaryKey());
-            }
-        } catch(\Exception $e) {
-            $this->addError($e->getMessage());
-            $this->performAfterCallback('afterSave', false);
-            return false;
-        }
+        $method = $this->isNew() ? 'insertObject' : 'updateObject';
+        $result = self::getDBO()->$method(static::getTable(), $this->attributes(true), static::getPrimaryKey());
+        $this->is_persisted = true;
+
         if(is_numeric($result)) {
             $this->{static::getPrimaryKey()} = $result;
         }
@@ -335,7 +349,10 @@ abstract class Model
     function isValid()
     {
         $this->validate();
-        return (bool) !count($this->errors);
+
+        $this->runValidators();
+
+        return (count($this->errors) === 0);
     }
 
     /**
@@ -470,7 +487,7 @@ abstract class Model
      *
      * @return bool
      */
-    abstract protected function validate();
+    protected function validate() { }
 
     /**
      * @var bool
@@ -567,6 +584,8 @@ abstract class Model
      * @example User::where("email = ? AND (is_subscribed = ? OR is_active = ?)", ['email@example.com', 1, 0])
      * @param string $whereStr
      * @param array $values
+     * @param string $sortField
+     * @param bool $sortAsc
      * @return $this[]
      */
     static function where($whereStr, $values = [], $sortField = 'id', $sortAsc = true)
@@ -713,42 +732,55 @@ abstract class Model
     /**
      * Has Many association
      *
-     * @param string $className
+     * @param Model|string $className
+     * @param null $foreign_key
      * @param string $sortField
      * @param bool $sortAsc
-     * @return \ORM|Model[]
+     * @return Model[]
      */
-    protected function hasMany($className, $sortField = '', $sortAsc = true)
+    protected function hasMany($className, $foreign_key = null, $sortField = '', $sortAsc = true)
     {
         if($sortField == '') {
             $sortField = $className::getPrimaryKey();
         }
 
-        $foreignKey = static::getForeignKey();
-        return $className::findAll([$foreignKey], [$this->{static::getPrimaryKey()}], $sortField, $sortAsc);
+        if(is_null($foreign_key)) {
+            $foreign_key = static::getForeignKey();
+        }
+
+        return $className::findAll([$foreign_key], [$this->{static::getPrimaryKey()}], $sortField, $sortAsc);
     }
 
     /**
      * Has One association
      *
-     * @param string $className
-     * @return |ORM|Model|null
+     * @param Model|string $class_name
+     * @param null $foreign_key
+     * @return Model|null
      */
-    protected function hasOne($className)
+    protected function hasOne($class_name, $foreign_key = null)
     {
-        return $className::findOne([static::getForeignKey()], [$this->{static::getPrimaryKey()}]);
+        if(is_null($foreign_key)) {
+            $foreign_key = static::getForeignKey();
+        }
+
+        return $class_name::findOne([$foreign_key], [$this->{static::getPrimaryKey()}]);
     }
 
     /**
      * Belongs To association
      *
-     * @param string $className
-     * @return |ORM|Model|null
+     * @param Model|string $class_name
+     * @param null $foreign_key
+     * @return Model|null
      */
-    protected function belongsTo($className)
+    protected function belongsTo($class_name, $foreign_key = null)
     {
-        $foreignKey = strtolower($className) . '_id';
-        return $className::find(intval($this->$foreignKey));
+        if(is_null($foreign_key)) {
+            $foreign_key = strtolower($class_name) . '_id';
+        }
+
+        return $class_name::find(intval($this->$foreign_key));
     }
 
     /**

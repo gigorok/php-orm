@@ -31,7 +31,7 @@ class User extends \ORM\Model
      */
     function account()
     {
-        return $this->hasOne('Account', 'accounts');
+        return $this->hasOne('Account');
     }
 
     /**
@@ -39,7 +39,7 @@ class User extends \ORM\Model
      */
     function option()
     {
-        return $this->hasOne('Option', 'options');
+        return $this->hasOne('Option');
     }
 
     /**
@@ -47,8 +47,5 @@ class User extends \ORM\Model
      */
     protected function validate()
     {
-        if(!isset($this->role_id) || !is_numeric($this->role_id)) {
-            $this->addError('Role ID must be numeric');
-        }
     }
 }

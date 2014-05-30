@@ -14,12 +14,4 @@ class Message extends \ORM\Model
     {
         return $this->hasAndBelongsToMany('User');
     }
-
-    /**
-     * @return bool
-     */
-    protected function validate()
-    {
-        // TODO: Implement validate() method.
-    }
 }
