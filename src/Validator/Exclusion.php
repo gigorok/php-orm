@@ -14,7 +14,7 @@ class Exclusion extends Validator
 {
     function validate()
     {
-        return !in_array($this->value, $this->params['in'], 1);
+        return !in_array($this->object->{$this->field}, $this->params['in'], 1);
     }
 
     function getMessage()

@@ -14,7 +14,7 @@ class Presence extends Validator
 {
     function validate()
     {
-        return !(is_null($this->value) && (trim($this->value) === ''));
+        return !(is_null($this->object->{$this->field}) && (trim($this->object->{$this->field}) === ''));
     }
 
     function getMessage()

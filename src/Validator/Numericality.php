@@ -14,7 +14,7 @@ class Numericality extends Validator
 {
     function validate()
     {
-        return is_numeric($this->value);
+        return is_numeric($this->object->{$this->field});
     }
 
     function getMessage()

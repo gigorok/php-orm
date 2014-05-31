@@ -18,7 +18,7 @@ class Format extends Validator
             throw new \Exception("Regexp is invalid");
         }
 
-        return preg_match($this->params['with'], $this->value) == 1;
+        return preg_match($this->params['with'], $this->object->{$this->field}) == 1;
     }
 
     /**

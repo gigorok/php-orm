@@ -13,7 +13,7 @@ use \Inflector\Inflector as Inflector;
  * Class Model
  * @package ORM
  */
-abstract class Model
+class Model
 {
     /**
      * Add Validation module supporting
@@ -185,7 +185,7 @@ abstract class Model
      *
      * @return string
      */
-    static function getPrimaryKey()
+    public static function getPrimaryKey()
     {
         return is_null(static::$primary_key) ? 'id' : static::$primary_key;
     }
@@ -195,7 +195,7 @@ abstract class Model
      *
      * @return string
      */
-    static function getTable()
+    public static function getTable()
     {
         return is_null(static::$table_name) ? Inflector::tableize(get_called_class()) : static::$table_name;
     }

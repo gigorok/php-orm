@@ -15,16 +15,12 @@ class Uniqueness extends Validator
     function validate()
     {
         /** @var $class_name \ORM|Model */
-        $class_name = $this->params['class_name'];
+        $class_name = get_class($this->object);
 
-
-        /** @var $object \ORM\Model */
-        $object = $this->params['object'];
-
-        if($object->isPersisted()) {
-            return count($class_name::where($this->field . " = ? AND " . $class_name::getPrimaryKey() . " != ?", [$this->value, $object->{$class_name::getPrimaryKey()}])) === 0;
+        if($this->object->isPersisted()) {
+            return count($class_name::where($this->field . " = ? AND " . $class_name::getPrimaryKey() . " != ?", [$this->object->{$this->field}, $this->object->{$class_name::getPrimaryKey()}])) === 0;
         } else {
-            return count($class_name::where($this->field . " = ?", [$this->value])) === 0;
+            return count($class_name::where($this->field . " = ?", [$this->object->{$this->field}])) === 0;
         }
     }
 

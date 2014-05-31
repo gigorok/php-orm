@@ -37,7 +37,7 @@ trait Validation
      */
     protected function validatePresence($prop, $params = [], $message = null)
     {
-        $this->addValidator(new Validator\Presence($prop, $this->$prop, $params, $message));
+        $this->addValidator(new Validator\Presence($this, $prop, $params, $message));
     }
 
     /**
@@ -48,7 +48,7 @@ trait Validation
      */
     protected function validateFormat($prop, $params, $message = null)
     {
-        $this->addValidator(new Validator\Format($prop, $this->$prop, $params, $message));
+        $this->addValidator(new Validator\Format($this, $prop, $params, $message));
     }
 
     /**
@@ -59,7 +59,7 @@ trait Validation
      */
     protected function validateInclusion($prop, $params, $message = null)
     {
-        $this->addValidator(new Validator\Inclusion($prop, $this->$prop, $params, $message));
+        $this->addValidator(new Validator\Inclusion($this, $prop, $params, $message));
     }
 
     /**
@@ -70,7 +70,7 @@ trait Validation
      */
     protected function validateExclusion($prop, $params, $message = null)
     {
-        $this->addValidator(new Validator\Exclusion($prop, $this->$prop, $params, $message));
+        $this->addValidator(new Validator\Exclusion($this, $prop, $params, $message));
     }
 
     /**
@@ -81,7 +81,7 @@ trait Validation
      */
     protected function validateNumericality($prop, $params = [], $message = null)
     {
-        $this->addValidator(new Validator\Numericality($prop, $this->$prop, $params, $message));
+        $this->addValidator(new Validator\Numericality($this, $prop, $params, $message));
     }
 
     /**
@@ -92,7 +92,7 @@ trait Validation
      */
     protected function validateLength($prop, $params, $message = null)
     {
-        $this->addValidator(new Validator\Length($prop, $this->$prop, $params, $message));
+        $this->addValidator(new Validator\Length($this, $prop, $params, $message));
     }
 
     /**
@@ -103,7 +103,7 @@ trait Validation
      */
     protected function validateUniqueness($prop, $params = [], $message = null)
     {
-        $this->addValidator(new Validator\Uniqueness($prop, $this->$prop, array_merge(['class_name' => get_class($this), 'object' => $this], $params), $message));
+        $this->addValidator(new Validator\Uniqueness($this, $prop, $params, $message));
     }
 
     /**

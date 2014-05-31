@@ -15,19 +15,19 @@ class Length extends Validator
     public function validate()
     {
         if(isset($this->params['minimum']) && is_numeric($this->params['minimum'])) {
-            return !(strlen($this->value) < $this->params['minimum']);
+            return !(strlen($this->object->{$this->field}) < $this->params['minimum']);
         }
 
         if(isset($this->params['maximum']) && is_numeric($this->params['maximum'])) {
-            return !(strlen($this->value) > $this->params['maximum']);
+            return !(strlen($this->object->{$this->field}) > $this->params['maximum']);
         }
 
         if(isset($this->params['in']) && is_array($this->params['in'])) {
-            return !(strlen($this->value) < $this->params['in'][0]) && !(strlen($this->value) > $this->params['in'][1]);
+            return !(strlen($this->object->{$this->field}) < $this->params['in'][0]) && !(strlen($this->object->{$this->field}) > $this->params['in'][1]);
         }
 
         if(isset($this->params['is']) && is_numeric($this->params['is'])) {
-            return (strlen($this->value) === $this->params['is']);
+            return (strlen($this->object->{$this->field}) === $this->params['is']);
         }
 
         throw new \Exception('Invalid length constraint options');
@@ -45,7 +45,7 @@ class Length extends Validator
             }
 
             if(isset($this->params['in']) && is_array($this->params['in'])) {
-                return (strlen($this->value) < $this->params['in'][0] ? 'is too short' : 'is too long');
+                return (strlen($this->object->{$this->field}) < $this->params['in'][0] ? 'is too short' : 'is too long');
             }
 
             if(isset($this->params['is']) && is_numeric($this->params['is'])) {
