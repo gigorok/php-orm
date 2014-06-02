@@ -23,19 +23,32 @@ class Model
     /**
      * @var string|null
      */
-    static $primary_key = null;
+    public static $primary_key = null;
 
     /**
      * @var string|null
      */
-    static $table_name = null;
+    public static $table_name = null;
+
+    /** @var \ORM\DBO */
+    public static $dbo = null;
+
+    /**
+     * Establish connection
+     *
+     * @param $connection Connection connection params
+     */
+    public static function establishConnection(Connection $connection)
+    {
+        static::$dbo = $connection->getDatabaseObject();
+    }
 
     /**
      * Initiates a transaction
      *
      * @return bool
      */
-    static function beginTransaction()
+    public static function beginTransaction()
     {
         return self::getDBO()->getPDO()->beginTransaction();
     }
@@ -45,7 +58,7 @@ class Model
      *
      * @return bool
      */
-    static function commit()
+    public static function commit()
     {
         return self::getDBO()->getPDO()->commit();
     }
@@ -55,7 +68,7 @@ class Model
      *
      * @return bool
      */
-    static function rollback()
+    public static function rollback()
     {
         return self::getDBO()->getPDO()->rollBack();
     }
@@ -65,7 +78,7 @@ class Model
      *
      * @return bool
      */
-    static function inTransaction()
+    public static function inTransaction()
     {
         return self::getDBO()->getPDO()->inTransaction();
     }
@@ -226,15 +239,10 @@ class Model
      *
      * @return string
      */
-    function getLastError()
+    public function getLastError()
     {
-        $errors = $this->errors->fullMessages();
-
-        return end($errors);
+        return end($this->errors->fullMessages());
     }
-
-    /** @var \ORM\DBO */
-    static $dbo = null;
 
     /**
      * Get DBO object
@@ -242,7 +250,7 @@ class Model
      * @throws \Exception
      * @return \ORM\DBO
      */
-    static function getDBO()
+    public static function getDBO()
     {
         if(!static::$dbo) {
             throw new \Exception('DBO must be configured before');
@@ -257,7 +265,7 @@ class Model
      * @param bool $reload
      * @return string[]
      */
-    function attributes($reload = false)
+    public function attributes($reload = false)
     {
         if($reload || empty($this->attributes)) {
             $rs = self::getDBO()->getPDO()->query('SELECT * FROM ' . static::getTable() . ' LIMIT 0');
@@ -275,7 +283,7 @@ class Model
      *
      * @return string[]
      */
-    static function schema()
+    public static function schema()
     {
         if(empty(self::$schema)) {
             $rs = self::getDBO()->getPDO()->query('SELECT * FROM ' . static::getTable() . ' LIMIT 0');
@@ -294,7 +302,7 @@ class Model
      * @param array $params
      * @return \ORM\Model
      */
-    function __construct($params = [])
+    public function __construct($params = [])
     {
         // initialize errors object
         $this->errors = new Errors();
@@ -309,7 +317,7 @@ class Model
      *
      * @return string
      */
-    static function getForeignKey()
+    public static function getForeignKey()
     {
         return Inflector::underscore(Inflector::singularize(get_called_class()) . '_id');
     }
@@ -346,7 +354,7 @@ class Model
      *
      * @return bool
      */
-    function isValid()
+    public function isValid()
     {
         $this->validate();
 
@@ -360,7 +368,7 @@ class Model
      *
      * @return bool
      */
-    function isInvalid()
+    public function isInvalid()
     {
         return !$this->isValid();
     }
@@ -371,7 +379,7 @@ class Model
      * @param $params
      * @return bool
      */
-    function update($params)
+    public function update($params)
     {
         $this->bind($params);
 
@@ -392,7 +400,7 @@ class Model
      * @param array $array
      * @return $this
      */
-    function bind($array)
+    public function bind($array)
     {
         $c = get_called_class();
         foreach ($array as $key => $value) {
@@ -410,7 +418,7 @@ class Model
      * @param $params
      * @return bool
      */
-    function create($params)
+    public function create($params)
     {
         $this->bind($params);
 
@@ -430,7 +438,7 @@ class Model
      *
      * @return bool
      */
-    function isPersisted()
+    public function isPersisted()
     {
         return $this->is_persisted;
     }
@@ -440,7 +448,7 @@ class Model
      *
      * @return bool
      */
-    function isNew()
+    public function isNew()
     {
         return !$this->isPersisted();
     }
@@ -450,7 +458,7 @@ class Model
      *
      * @return bool
      */
-    function destroy()
+    public function destroy()
     {
         if(!$this->beforeDestroy()) {
             return false;
@@ -477,7 +485,7 @@ class Model
      * @param array $values
      * @return bool
      */
-    static function destroyBy($fields = [], $values = [])
+    public static function destroyBy($fields = [], $values = [])
     {
         return self::getDBO()->deleteObjects(static::getTable(), $fields, $values);
     }
@@ -533,7 +541,7 @@ class Model
      * @param $value
      * @return $this|null
      */
-    static function find($value)
+    public static function find($value)
     {
         $result = self::getDBO()->getObject(static::getTable(), $value, get_called_class(), static::getPrimaryKey());
         if($result) {
@@ -549,7 +557,7 @@ class Model
      * @param array $values
      * @return int
      */
-    static function count($fields = [], $values = [])
+    public static function count($fields = [], $values = [])
     {
         return self::getDBO()->numObjects(static::getTable(), $fields, $values);
     }
@@ -565,7 +573,7 @@ class Model
      * @param int $offset
      * @return $this[]
      */
-    static function findAll($fields = [], $values = [], $sortField = '', $sortAsc = true, $limit = null, $offset = 0)
+    public static function findAll($fields = [], $values = [], $sortField = '', $sortAsc = true, $limit = null, $offset = 0)
     {
         if($sortField == '') {
             $sortField = static::getPrimaryKey();
@@ -588,7 +596,7 @@ class Model
      * @param bool $sortAsc
      * @return $this[]
      */
-    static function where($whereStr, $values = [], $sortField = 'id', $sortAsc = true)
+    public static function where($whereStr, $values = [], $sortField = 'id', $sortAsc = true)
     {
         $query = "SELECT * FROM " . static::getTable() . " WHERE " . $whereStr . " ORDER BY " . $sortField . ($sortAsc ? ' ASC' : ' DESC');
 
@@ -602,7 +610,7 @@ class Model
      * @param array $values
      * @return $this|null
      */
-    static function findOne($fields = [], $values = [])
+    public static function findOne($fields = [], $values = [])
     {
         if(count($fields) > 0) {
             return self::getDBO()->findObject(static::getTable(), $fields, $values, get_called_class());
@@ -618,7 +626,7 @@ class Model
      * @param array $values
      * @return \ORM\Model|null
      */
-    static function findOrInitializeBy($fields = [], $values = [])
+    public static function findOrInitializeBy($fields = [], $values = [])
     {
         $result = self::findOne($fields, $values);
 
@@ -642,7 +650,7 @@ class Model
      * @param array $values
      * @return null|Model
      */
-    static function findOrCreateBy($fields = [], $values = [])
+    public static function findOrCreateBy($fields = [], $values = [])
     {
         $result = self::findOne($fields, $values);
 
@@ -666,7 +674,7 @@ class Model
      * @param int $offset
      * @return $this[]
      */
-    static function all($sortField = '', $sortAsc = true, $limit = null, $offset = 0)
+    public static function all($sortField = '', $sortAsc = true, $limit = null, $offset = 0)
 	{
         if($sortField == '') {
             $sortField = static::getPrimaryKey();
@@ -681,7 +689,7 @@ class Model
      * @param int $limit
      * @return $this|$this[]
      */
-    static function last($limit = 1)
+    public static function last($limit = 1)
 	{
         $result = self::all(static::getPrimaryKey(), false, $limit);
         if($limit == 1 && is_array($result) && isset($result[0])) {
@@ -697,7 +705,7 @@ class Model
      * @param int $limit
      * @return $this|$this[]
      */
-    static function first($limit = 1)
+    public static function first($limit = 1)
     {
         $result = self::all(static::getPrimaryKey(), true, $limit);
         if($limit == 1 && is_array($result) && isset($result[0])) {
@@ -788,7 +796,7 @@ class Model
      *
      * @return array
      */
-    static function properties()
+    public static function properties()
     {
         return array_keys(self::schema());
     }

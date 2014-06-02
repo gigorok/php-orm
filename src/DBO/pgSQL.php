@@ -9,6 +9,8 @@ namespace ORM\DBO;
 
 class pgSQL extends \ORM\DBO
 {
+    public static $engine_name = 'postgresql';
+
 	protected function makeDsn()
 	{
 		return "pgsql:host={$this->host};port={$this->port};dbname={$this->dbname}";

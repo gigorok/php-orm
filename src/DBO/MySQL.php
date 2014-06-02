@@ -13,6 +13,8 @@ namespace ORM\DBO;
  */
 class MySQL extends \ORM\DBO
 {
+    public static $engine_name = 'mysql';
+
     /**
      * @return string
      */
