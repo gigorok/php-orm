@@ -89,37 +89,6 @@ class ModelTest extends \BaseTest
         );
     }
 
-    function testAccessibleParameters()
-    {
-        $this->assertSame(
-            ['id', 'email', 'first_name', 'last_name', 'role_id'],
-            User::$accessible
-        );
-
-        $user = new User([
-            'id' => 11,
-            'role_id' => 1,
-            'email' => 'email123@example.com',
-            'first_name' => 'Test',
-            'last_name' => 'Test',
-        ]);
-        $user->save();
-        $this->assertSame(User::find(11)->first_name, 'Test');
-
-        User::$accessible = ['id', 'email', 'last_name', 'role_id'];
-
-        $user = new User([
-            'id' => 12,
-            'role_id' => 1,
-            'email' => 'email123@example.com',
-            'first_name' => 'Test',
-            'last_name' => 'Test',
-        ]);
-        $user->save();
-        $this->assertSame(User::find(12)->last_name, 'Test');
-        $this->assertNull(User::find(12)->first_name);
-    }
-
     function testPivotModel()
     {
         $pivot = User::first()->messages()->pivot();

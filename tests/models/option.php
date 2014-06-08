@@ -8,8 +8,5 @@
 
 class Option extends \ORM\Model
 {
-    static $accessible = ['user_id', 'name'];
-
     static $primary_key = 'user_id';
-
 }

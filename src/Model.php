@@ -180,13 +180,6 @@ class Model
     private static $schema = [];
 
     /**
-     * Accessible parameters
-     *
-     * @var array
-     */
-    public static $accessible = [];
-
-    /**
      * Validation errors
      *
      * @var Errors
@@ -402,11 +395,8 @@ class Model
      */
     public function bind($array)
     {
-        $c = get_called_class();
         foreach ($array as $key => $value) {
-            if(in_array($key, $c::$accessible)) { // bind only accessible parameters
-                $this->$key = $value;
-            }
+            $this->$key = $value;
         }
 
         return $this;

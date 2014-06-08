@@ -252,8 +252,6 @@ class HasAndBelongsToMany
             $code = <<<PIVOT
                 class $className extends \ORM\Model
                 {
-                    static \$accessible = ['$fk1', '$fk2'];
-
                     static function getTable()
                     {
                         return '$this->tableName';

@@ -8,8 +8,6 @@
 
 class Message extends \ORM\Model
 {
-    static $accessible = ['title'];
-
     function users()
     {
         return $this->hasAndBelongsToMany('User');

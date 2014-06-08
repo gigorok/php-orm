@@ -14,8 +14,6 @@ class BaseTest extends \PHPUnit_Extensions_Database_TestCase
         $connection = new \ORM\Connection('mysql', DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASS);
         \ORM\Model::establishConnection($connection);
 
-        User::$accessible = ['id', 'email', 'first_name', 'last_name', 'role_id'];
-
         parent::setUp();
     }
 

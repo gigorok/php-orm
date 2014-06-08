@@ -8,8 +8,6 @@
 
 class User extends \ORM\Model
 {
-    static $accessible = ['id', 'email', 'first_name', 'last_name', 'role_id'];
-
     /**
      * @return \ORM\HasAndBelongsToMany
      */
