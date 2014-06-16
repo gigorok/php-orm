@@ -43,7 +43,7 @@ class Connection
      * @return \ORM\DBO
      * @throws \Exception
      */
-    public function getDatabaseObject()
+    public function getInstance()
     {
         // get engine class
         switch($this->engine) {

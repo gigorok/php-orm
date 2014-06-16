@@ -120,8 +120,7 @@ class ModelTest extends \BaseTest
             'first_name' => 'Test',
             'last_name' => 'Test',
         ];
-        $user = new User();
-        $user->create($params);
+        $user = User::create($params);
 
         $this->assertEquals($user->id, 4);
 
@@ -230,10 +229,8 @@ class ModelTest extends \BaseTest
             'first_name' => 'John',
             'last_name' => 'Test',
         ], $params);
-        $u = new User($params);
-        $u->save();
 
-        return $u;
+        return User::create($params);
     }
 
 }

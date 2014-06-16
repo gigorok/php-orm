@@ -12,8 +12,15 @@ namespace ORM;
  * Class Validation
  * @package ORM
  */
-trait Validation
+trait Validations
 {
+    /**
+     * Validation errors
+     *
+     * @var Errors
+     */
+    protected $errors = null;
+
     /**
      * Validators container
      * @var Validator[]
@@ -126,5 +133,80 @@ trait Validation
     private function addValidator(Validator $validator)
     {
         $this->validators[] = $validator;
+    }
+
+    /**
+     * Is valid instance?
+     *
+     * @return bool
+     */
+    public function isValid()
+    {
+        $this->validate();
+
+        $this->runValidators();
+
+        return (count($this->errors) === 0);
+    }
+
+    /**
+     * Is invalid instance?
+     *
+     * @return bool
+     */
+    public function isInvalid()
+    {
+        return !$this->isValid();
+    }
+
+    /**
+     * Add validation error
+     *
+     * @param string $error_msg
+     * @param string|null $attribute
+     */
+    public function addError($error_msg, $attribute = null)
+    {
+        $this->errors->add($attribute, $error_msg);
+    }
+
+    /**
+     * Return validation errors
+     *
+     * @return Errors
+     */
+    public function getErrors()
+    {
+        return $this->errors;
+    }
+
+    /**
+     * Get last error
+     *
+     * @return string
+     */
+    public function getLastError()
+    {
+        return end($this->errors->fullMessages());
+    }
+
+    /**
+     * Validate current instance in child instances
+     *
+     * @return bool
+     */
+    protected function validate() { }
+
+    /**
+     * Initialize new record
+     *
+     * @param array $params
+     * @return $this
+     */
+    public function initialize($params = [])
+    {
+        $this->errors = new Errors();
+
+        return parent::initialize($params);
     }
 }
