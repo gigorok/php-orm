@@ -25,10 +25,13 @@ abstract class CallbackableModel extends Base
 
 class Model extends CallbackableModel
 {
+    /**
+     * Add ValidationsCallbacks module supporting
+     */
     use ValidationsCallbacks;
 
     /**
-     * Add Validation module supporting
+     * Add Validations module supporting
      */
     use Validations;
 
@@ -41,4 +44,9 @@ class Model extends CallbackableModel
      * Add Transactions module supporting
      */
     use Transactions;
+
+    /**
+     * Add Schemas module supporting
+     */
+    use Schemas;
 }

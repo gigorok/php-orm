@@ -114,7 +114,7 @@ class HasAndBelongsToMany
                     LEFT JOIN $this->tableName ON $tableName.$pKey = $this->tableName.$fk1
                     WHERE $this->tableName.$fk2 = ? $conditionsStr";
 
-        return Model::getDBO()->getObjectsQuery($query, array_merge([$model->{$model::getPrimaryKey()}], $values), $className);
+        return Model::getConnection()->getObjectsQuery($query, array_merge([$model->{$model::getPrimaryKey()}], $values), $className);
     }
 
     /**
@@ -297,7 +297,7 @@ PIVOT;
         if(is_null($id)) { // remove all linked rows
             $sql = "DELETE FROM $this->tableName WHERE " . $this->getForeignKey() . ' = ?';
 
-            return Model::getDBO()->runQuery($sql, [$this->model->$pKey]);
+            return Model::getConnection()->runQuery($sql, [$this->model->$pKey]);
         } else {
             return $this->pivot()->findOne([$this->getForeignKey(), $this->getForeignKeyRelated()], [$this->model->$pKey, $id])->destroy();
         }

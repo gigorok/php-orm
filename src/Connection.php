@@ -54,7 +54,7 @@ class Connection
                 $engine_class = '\ORM\DBO\pgSQL';
                 break;
             default:
-                throw new \Exception('Database Engine is not defined properly');
+                throw new \Exception('Database Engine is not supporting');
         }
 
         return new $engine_class($this->hostname, $this->port, $this->database, $this->username, $this->password);

@@ -17,7 +17,7 @@ trait Transactions
      */
     public static function beginTransaction()
     {
-        return self::getDBO()->getPDO()->beginTransaction();
+        return self::getConnection()->getPDO()->beginTransaction();
     }
 
     /**
@@ -27,7 +27,7 @@ trait Transactions
      */
     public static function commit()
     {
-        return self::getDBO()->getPDO()->commit();
+        return self::getConnection()->getPDO()->commit();
     }
 
     /**
@@ -37,7 +37,7 @@ trait Transactions
      */
     public static function rollback()
     {
-        return self::getDBO()->getPDO()->rollBack();
+        return self::getConnection()->getPDO()->rollBack();
     }
 
     /**
@@ -47,6 +47,6 @@ trait Transactions
      */
     public static function inTransaction()
     {
-        return self::getDBO()->getPDO()->inTransaction();
+        return self::getConnection()->getPDO()->inTransaction();
     }
 }

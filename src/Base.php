@@ -29,7 +29,7 @@ class Base
     /**
      * @var \ORM\DBO
      */
-    public static $dbo = null;
+    public static $connection = null;
 
     /**
      * Persisted option
@@ -45,22 +45,8 @@ class Base
      */
     public static function establishConnection(Connection $connection)
     {
-        static::$dbo = $connection->getInstance();
+        static::$connection = $connection->getInstance();
     }
-
-    /**
-     * Attributes
-     *
-     * @var array
-     */
-    private $attributes = [];
-
-    /**
-     * Schema
-     *
-     * @var array
-     */
-    private static $schema = [];
 
     /**
      * Get name of primary key
@@ -70,6 +56,22 @@ class Base
     public static function getPrimaryKey()
     {
         return is_null(static::$primary_key) ? 'id' : static::$primary_key;
+    }
+
+    /**
+     * Get property of instance magically
+     *
+     * @param string $property
+     * @return string
+     */
+    public function __get($property)
+    {
+        if(in_array($property, array_keys($this->attributes()))) {
+            return $this->$property = $this->attributes()[$property];
+        } else {
+            $class_name = static::className();
+            trigger_error("Undefined property $property for $class_name", E_USER_NOTICE);
+        }
     }
 
     /**
@@ -88,13 +90,13 @@ class Base
      * @throws \Exception
      * @return \ORM\DBO
      */
-    public static function getDBO()
+    public static function getConnection()
     {
-        if(!static::$dbo) {
-            throw new \Exception('DBO must be configured before');
+        if(!static::$connection) {
+            throw new \Exception('Connection is not configured properly');
         }
 
-        return static::$dbo;
+        return static::$connection;
     }
 
     /**
@@ -105,7 +107,11 @@ class Base
     public function save()
     {
         $method = $this->isNew() ? 'insertObject' : 'updateObject';
-        $result = self::getDBO()->$method(static::getTable(), $this->attributes(true), static::getPrimaryKey());
+        $result = self::getConnection()->$method(
+            static::getTable(),
+            $this->attributes(true),
+            static::getPrimaryKey()
+        );
         $this->is_persisted = true;
 
         if($result) {
@@ -123,15 +129,18 @@ class Base
      */
     public function attributes($reload = false)
     {
-        if($reload || empty($this->attributes)) {
-            $rs = self::getDBO()->getPDO()->query('SELECT * FROM ' . static::getTable() . ' LIMIT 0');
+        $attributes = [];
+
+        if($reload || empty($attributes)) {
+            $table_name = static::getTable();
+            $rs = self::getConnection()->getPDO()->query("SELECT * FROM {$table_name} LIMIT 0");
             for ($i = 0; $i < $rs->columnCount(); $i++) {
                 $col = $rs->getColumnMeta($i);
-                $this->attributes[$col['name']] = isset($this->$col['name']) ? $this->$col['name'] : null;
+                $attributes[$col['name']] = isset($this->$col['name']) ? $this->$col['name'] : null;
             }
         }
 
-        return $this->attributes;
+        return $attributes;
     }
 
     /**
@@ -154,24 +163,6 @@ class Base
         }
 
         return $this;
-    }
-
-    /**
-     * Get schema of instance
-     *
-     * @return string[]
-     */
-    public static function schema()
-    {
-        if(empty(self::$schema)) {
-            $rs = self::getDBO()->getPDO()->query('SELECT * FROM ' . static::getTable() . ' LIMIT 0');
-            for ($i = 0; $i < $rs->columnCount(); $i++) {
-                $col = $rs->getColumnMeta($i);
-                self::$schema[$col['name']] = $col['native_type'];
-            }
-        }
-
-        return self::$schema;
     }
 
     /**
@@ -215,7 +206,8 @@ class Base
     public static function create($params)
     {
         /** @var $object \ORM\Model */
-        $object = new static($params);
+        $className = static::className();
+        $object = new $className($params);
         $object->save();
 
         return $object;
@@ -267,7 +259,11 @@ class Base
         if($this->isNew()) {
             return false;
         } else {
-            $result = self::getDBO()->deleteObject(static::getTable(), $this->{static::getPrimaryKey()}, static::getPrimaryKey());
+            $result = self::getConnection()->deleteObject(
+                static::getTable(),
+                $this->{static::getPrimaryKey()},
+                static::getPrimaryKey()
+            );
             if($result) {
                 $this->is_persisted = false;
             }
@@ -285,7 +281,11 @@ class Base
      */
     public static function destroyBy($fields = [], $values = [])
     {
-        return self::getDBO()->deleteObjects(static::getTable(), $fields, $values);
+        return self::getConnection()->deleteObjects(
+            static::getTable(),
+            $fields,
+            $values
+        );
     }
 
     /**
@@ -296,10 +296,17 @@ class Base
      */
     public static function find($value)
     {
-        $result = self::getDBO()->getObject(static::getTable(), $value, static::className(), static::getPrimaryKey());
+        $result = self::getConnection()->getObject(
+            static::getTable(),
+            $value,
+            static::className(),
+            static::getPrimaryKey()
+        );
+
         if($result) {
             $result->is_persisted = true;
         }
+
         return $result ?: null;
     }
 
@@ -312,7 +319,11 @@ class Base
      */
     public static function count($fields = [], $values = [])
     {
-        return self::getDBO()->numObjects(static::getTable(), $fields, $values);
+        return self::getConnection()->numObjects(
+            static::getTable(),
+            $fields,
+            $values
+        );
     }
 
     /**
@@ -326,7 +337,14 @@ class Base
      * @param int $offset
      * @return $this[]
      */
-    public static function findAll($fields = [], $values = [], $sortField = '', $sortAsc = true, $limit = null, $offset = 0)
+    public static function findAll(
+        $fields = [],
+        $values = [],
+        $sortField = '',
+        $sortAsc = true,
+        $limit = null,
+        $offset = 0
+    )
     {
         if($sortField == '') {
             $sortField = static::getPrimaryKey();
@@ -336,7 +354,16 @@ class Base
             return self::all($sortField, $sortAsc, $limit, $offset);
         }
 
-        return self::getDBO()->findObjects(static::getTable(), $fields, $values, $sortField, $sortAsc, $limit, $offset, static::className());
+        return self::getConnection()->findObjects(
+            static::getTable(),
+            $fields,
+            $values,
+            $sortField,
+            $sortAsc,
+            $limit,
+            $offset,
+            static::className()
+        );
     }
 
     /**
@@ -349,11 +376,23 @@ class Base
      * @param bool $sortAsc
      * @return $this[]
      */
-    public static function where($whereStr, $values = [], $sortField = 'id', $sortAsc = true)
+    public static function where(
+        $whereStr,
+        $values = [],
+        $sortField = 'id',
+        $sortAsc = true
+    )
     {
-        $query = "SELECT * FROM " . static::getTable() . " WHERE " . $whereStr . " ORDER BY " . $sortField . ($sortAsc ? ' ASC' : ' DESC');
+        $table_name = static::getTable();
+        $direction = $sortAsc ? ' ASC' : ' DESC';
 
-        return self::getDBO()->getObjectsQuery($query, $values, static::className());
+        $query = "SELECT * FROM {$table_name} WHERE {$whereStr} ORDER BY {$sortField} {$direction}";
+
+        return self::getConnection()->getObjectsQuery(
+            $query,
+            $values,
+            static::className()
+        );
     }
 
     /**
@@ -366,7 +405,12 @@ class Base
     public static function findOne($fields = [], $values = [])
     {
         if(count($fields) > 0) {
-            return self::getDBO()->findObject(static::getTable(), $fields, $values, static::className());
+            return self::getConnection()->findObject(
+                static::getTable(),
+                $fields,
+                $values,
+                static::className()
+            );
         }
 
         return null;
@@ -429,7 +473,14 @@ class Base
             $sortField = static::getPrimaryKey();
         }
 
-        return self::getDBO()->getObjects(static::getTable(), $sortField, $sortAsc, $limit, $offset, static::className());
+        return self::getConnection()->getObjects(
+            static::getTable(),
+            $sortField,
+            $sortAsc,
+            $limit,
+            $offset,
+            static::className()
+        );
 	}
 
     /**
@@ -465,17 +516,8 @@ class Base
     }
 
     /**
-     * Get instance's properties
-     *
-     * @return array
-     */
-    public static function properties()
-    {
-        return array_keys(self::schema());
-    }
-
-    /**
-     * Returns true if the record is persisted, i.e. it's not a new record and it was not destroyed, otherwise returns false.
+     * Returns true if the record is persisted,
+     * i.e. it's not a new record and it was not destroyed, otherwise returns false.
      *
      * @return bool
      */
@@ -485,7 +527,8 @@ class Base
     }
 
     /**
-     * Returns true if this object hasn't been saved yet – that is, a record for the object doesn't exist in the data store yet; otherwise, returns false.
+     * Returns true if this object hasn't been saved yet – that is,
+     * a record for the object doesn't exist in the data store yet; otherwise, returns false.
      *
      * @return bool
      */

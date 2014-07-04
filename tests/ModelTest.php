@@ -221,6 +221,15 @@ class ModelTest extends \BaseTest
         $this->assertCount(2, User::all());
     }
 
+    function testGetProperty()
+    {
+        $user = new User();
+        $this->assertNull($user->email);
+
+        $user->email = 'someemail';
+        $this->assertEquals($user->email, 'someemail');
+    }
+
     private function createNewUser($params = [])
     {
         $params = array_merge([
