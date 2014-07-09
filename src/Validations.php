@@ -114,6 +114,17 @@ trait Validations
     }
 
     /**
+     * Custom validator
+     * @param $prop
+     * @param array $params
+     * @param null $message
+     */
+    protected function validateCustom($prop, $params = [], $message = null)
+    {
+        $this->addValidator(new Validator\Custom($this, $prop, $params, $message));
+    }
+
+    /**
      * Run validators
      */
     protected function runValidators()

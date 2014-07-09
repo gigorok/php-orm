@@ -33,6 +33,19 @@ trait Associations
     }
 
     /**
+     * Alias for hasAndBelongsToMany association
+     * @param $class_name
+     * @param null $table_name
+     * @param null $foreign_key
+     * @param null $foreign_key_related
+     * @return HasAndBelongsToMany
+     */
+    protected function manyToMany($class_name, $table_name = null, $foreign_key = null, $foreign_key_related = null)
+    {
+        return $this->hasAndBelongsToMany($class_name, $table_name, $foreign_key, $foreign_key_related);
+    }
+
+    /**
      * Has Many association
      *
      * @param Model|string $className

@@ -124,4 +124,13 @@ class ValidationTest extends \BaseTest
         $this->assertTrue($message->isValid());
     }
 
+    function testCustom()
+    {
+        $message = new Message(['title' => 'some title']);
+        $message->validateWith(new \ORM\Validator\Custom($message, 'title', ['closure' => function($value) {
+            return strlen($value) > 12;
+            }]));
+        $this->assertTrue($message->isInvalid());
+    }
+
 }
