@@ -8,13 +8,38 @@
 
 namespace ORM;
 
+/**
+ * Class Validator
+ * @package ORM
+ */
 abstract class Validator
 {
+    /**
+     * @var
+     */
     protected $object;
+
+    /**
+     * @var
+     */
     protected $field;
+
+    /**
+     * @var array
+     */
     protected $params = [];
+
+    /**
+     * @var null
+     */
     protected $message = null;
 
+    /**
+     * @param $object
+     * @param $field
+     * @param array $params
+     * @param null $message
+     */
     function __construct($object, $field, $params = [], $message = null)
     {
         $this->field = $field;
@@ -23,13 +48,22 @@ abstract class Validator
         $this->message = $message;
     }
 
+    /**
+     * @return mixed
+     */
     abstract function validate();
 
+    /**
+     * @return mixed
+     */
     public function getAttribute()
     {
         return $this->field;
     }
 
+    /**
+     * @return null|string
+     */
     public function getMessage()
     {
         if(is_null($this->message)) {

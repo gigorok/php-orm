@@ -14,11 +14,34 @@ namespace ORM;
  */
 class Connection
 {
+    /**
+     * @var string
+     */
     protected $engine = 'mysql';
+
+    /**
+     * @var string
+     */
     protected $hostname = 'localhost';
+
+    /**
+     * @var int
+     */
     protected $port = 3306;
+
+    /**
+     * @var string
+     */
     protected $database = '';
+
+    /**
+     * @var string
+     */
     protected $username = 'root';
+
+    /**
+     * @var string
+     */
     protected $password = '';
 
     /**

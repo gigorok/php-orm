@@ -10,8 +10,15 @@ namespace ORM\Validator;
 
 use ORM\Validator;
 
+/**
+ * Class Uniqueness
+ * @package ORM\Validator
+ */
 class Uniqueness extends Validator
 {
+    /**
+     * @return bool|mixed
+     */
     function validate()
     {
         /** @var $class_name \ORM|Model */
@@ -24,6 +31,9 @@ class Uniqueness extends Validator
         }
     }
 
+    /**
+     * @return null|string
+     */
     public function getMessage()
     {
         if(is_null($this->message)) {

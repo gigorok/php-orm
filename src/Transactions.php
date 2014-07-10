@@ -49,4 +49,27 @@ trait Transactions
     {
         return self::getConnection()->getPDO()->inTransaction();
     }
+
+    /**
+     * @param callable $closure
+     * @return bool
+     * @throws \Exception
+     */
+    public static function transaction(\Closure $closure)
+    {
+        static::beginTransaction();
+
+        try {
+            call_user_func($closure);
+
+            static::commit();
+
+        } catch(\Exception $e) {
+            static::rollback();
+
+            throw new \Exception($e);
+        }
+
+        return true;
+    }
 }

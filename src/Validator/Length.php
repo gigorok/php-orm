@@ -10,8 +10,16 @@ namespace ORM\Validator;
 
 use ORM\Validator;
 
+/**
+ * Class Length
+ * @package ORM\Validator
+ */
 class Length extends Validator
 {
+    /**
+     * @return bool|mixed
+     * @throws \Exception
+     */
     public function validate()
     {
         if(isset($this->params['minimum']) && is_numeric($this->params['minimum'])) {
@@ -33,6 +41,9 @@ class Length extends Validator
         throw new \Exception('Invalid length constraint options');
     }
 
+    /**
+     * @return null|string
+     */
     public function getMessage()
     {
         if(is_null($this->message)) {

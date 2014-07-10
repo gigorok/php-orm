@@ -10,8 +10,16 @@ namespace ORM\Validator;
 
 use ORM\Validator;
 
+/**
+ * Class Format
+ * @package ORM\Validator
+ */
 class Format extends Validator
 {
+    /**
+     * @return bool|mixed
+     * @throws \Exception
+     */
     function validate()
     {
         if(self::isInValidRegExp($this->params['with'])) {
