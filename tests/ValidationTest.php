@@ -122,6 +122,7 @@ class ValidationTest extends \BaseTest
         $message = new Message(['title' => 'some title1']);
         $message->validateWith(new \ORM\Validator\Uniqueness($message, 'title'));
         $this->assertTrue($message->isValid());
+
     }
 
     function testCustom()
@@ -130,6 +131,12 @@ class ValidationTest extends \BaseTest
         $message->validateWith(new \ORM\Validator\Custom($message, 'title', ['closure' => function($value) {
             return strlen($value) > 12;
             }]));
+        $this->assertTrue($message->isInvalid());
+    }
+
+    function testValidates()
+    {
+        $message = new Message(['title' => '123456789012345678901']);
         $this->assertTrue($message->isInvalid());
     }
 

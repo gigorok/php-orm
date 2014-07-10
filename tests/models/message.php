@@ -8,6 +8,10 @@
 
 class Message extends \ORM\Model
 {
+    static $validates = [
+        'title' => ['length', ['maximum' => 20]]
+    ];
+
     function users()
     {
         return $this->hasAndBelongsToMany('User');

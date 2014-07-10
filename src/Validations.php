@@ -14,12 +14,37 @@ namespace ORM;
  */
 trait Validations
 {
+    static $supported_validators = [
+        'exclusion', 'inclusion', 'length',
+        'format', 'numericality', 'presence',
+        'uniqueness', 'custom'
+    ];
+
     /**
      * Validation errors
      *
      * @var Errors
      */
     protected $errors = null;
+
+    /**
+     * Validation container
+     * Instead of using validate method
+     * @example
+     *      [
+     *       'type_id' => ['exclusion', ['in' => [1, 3]]],
+     *       'type_id' => ['inclusion', ['in' => [1, 3]]],
+     *       'title' => ['format', ['with' => '/\A[a-zA-Z]+\z/'], 'only allows letters'],
+     *       'title' => ['length', ['minimum' => 3, 'maximum' => 10, 'is' => 5, 'in' => [3, 7]]],
+     *       'type_id' => ['numericality', [], 'should be numeric'],
+     *       'title' => ['presence', []],
+     *       'title' => ['uniqueness'],
+     *       'title' => ['custom', ['closure' => function($title) { return strlen($title) < 2; }], 'is invalid']
+     *       ]
+     *
+     * @var array
+     */
+    static $validates = [];
 
     /**
      * Validators container
@@ -149,11 +174,26 @@ trait Validations
     /**
      * Is valid instance?
      *
+     * @throws \Exception
      * @return bool
      */
     public function isValid()
     {
-        $this->validate();
+        $this->validate(); # for backward compatibility
+
+        foreach(static::$validates as $field => $rule) {
+            $validator_name = $rule[0];
+            $validator_params = isset($rule[1]) ? $rule[1] : [];
+            $message = isset($rule[2]) ? $rule[2] : null;
+
+            if(!in_array($validator_name, self::$supported_validators)) {
+                throw new \Exception('Invalid validator');
+            }
+
+            $class_name = '\\ORM\\Validator\\' . ucfirst($validator_name);
+
+            $this->validateWith(new $class_name($this, $field, $validator_params, $message));
+        }
 
         $this->runValidators();
 
