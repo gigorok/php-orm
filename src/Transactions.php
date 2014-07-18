@@ -67,7 +67,9 @@ trait Transactions
         } catch(\Exception $e) {
             static::rollback();
 
-            throw new \Exception($e);
+            $class_name = get_class($e);
+
+            throw new $class_name($e->getMessage());
         }
 
         return true;
