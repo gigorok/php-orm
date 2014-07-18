@@ -121,7 +121,7 @@ class HasAndBelongsToMany
      * Has related object with ID=$id
      *
      * @param \ORM\Model|int $payload
-     * @throws \Exception
+     * @throws \ORM\Exception
      * @return bool
      */
     function has($payload)
@@ -131,7 +131,7 @@ class HasAndBelongsToMany
         } else if(is_numeric($payload)){
             $id = $payload;
         } else {
-            throw new \Exception('Payload ' . $payload . ' is invalid');
+            throw new \ORM\Exception('Payload ' . $payload . ' is invalid');
         }
 
         $model = $this->model;
@@ -183,7 +183,7 @@ class HasAndBelongsToMany
      * Attach related object with ID=$id
      *
      * @param \ORM\Model|int $payload
-     * @throws \Exception
+     * @throws \ORM\Exception
      * @return bool
      */
     function attach($payload)
@@ -193,7 +193,7 @@ class HasAndBelongsToMany
         } else if(is_numeric($payload)){
             $id = $payload;
         } else {
-            throw new \Exception('Payload ' . $payload . ' is invalid');
+            throw new \ORM\Exception('Payload ' . $payload . ' is invalid');
         }
 
         $pivot = $this->pivot();

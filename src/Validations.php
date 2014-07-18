@@ -174,7 +174,7 @@ trait Validations
     /**
      * Is valid instance?
      *
-     * @throws \Exception
+     * @throws \ORM\Exception
      * @return bool
      */
     public function isValid()
@@ -187,7 +187,7 @@ trait Validations
             $message = isset($rule[2]) ? $rule[2] : null;
 
             if(!in_array($validator_name, self::$supported_validators)) {
-                throw new \Exception('Invalid validator');
+                throw new \ORM\Exception('Invalid validator');
             }
 
             $class_name = '\\ORM\\Validator\\' . ucfirst($validator_name);
@@ -216,7 +216,7 @@ trait Validations
      * @param string $error_msg
      * @param string|null $attribute
      */
-    public function addError($error_msg, $attribute = null)
+    public function addError($error_msg, $attribute = 'base')
     {
         $this->errors->add($attribute, $error_msg);
     }

@@ -87,13 +87,13 @@ class Base
     /**
      * Get DBO object
      *
-     * @throws \Exception
+     * @throws \ORM\Exception
      * @return \ORM\DBO
      */
     public static function getConnection()
     {
         if(!static::$connection) {
-            throw new \Exception('Connection is not configured properly');
+            throw new \ORM\Exception('Connection is not configured properly');
         }
 
         return static::$connection;
@@ -147,12 +147,12 @@ class Base
      * Reload record
      *
      * @return $this
-     * @throws \Exception
+     * @throws \ORM\Exception
      */
     public function reload()
     {
         if($this->isNew()) {
-            throw new \Exception('Record not found');
+            throw new \ORM\Exception('Record not found');
         }
 
         /** @var $object \ORM\Model */

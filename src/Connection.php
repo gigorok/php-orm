@@ -64,7 +64,7 @@ class Connection
 
     /**
      * @return \ORM\DBO
-     * @throws \Exception
+     * @throws \ORM\Exception
      */
     public function getInstance()
     {
@@ -77,7 +77,7 @@ class Connection
                 $engine_class = '\ORM\DBO\pgSQL';
                 break;
             default:
-                throw new \Exception('Database Engine is not supporting');
+                throw new \ORM\Exception('Database Engine is not supporting');
         }
 
         return new $engine_class($this->hostname, $this->port, $this->database, $this->username, $this->password);

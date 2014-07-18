@@ -18,7 +18,7 @@ class Length extends Validator
 {
     /**
      * @return bool|mixed
-     * @throws \Exception
+     * @throws \ORM\Exception
      */
     public function validate()
     {
@@ -38,7 +38,7 @@ class Length extends Validator
             return (strlen($this->object->{$this->field}) === $this->params['is']);
         }
 
-        throw new \Exception('Invalid length constraint options');
+        throw new \ORM\Exception('Invalid length constraint options');
     }
 
     /**

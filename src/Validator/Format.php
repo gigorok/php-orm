@@ -18,12 +18,12 @@ class Format extends Validator
 {
     /**
      * @return bool|mixed
-     * @throws \Exception
+     * @throws \ORM\Exception
      */
     function validate()
     {
         if(self::isInValidRegExp($this->params['with'])) {
-            throw new \Exception("Regexp is invalid");
+            throw new \ORM\Exception("Regexp is invalid");
         }
 
         return preg_match($this->params['with'], $this->object->{$this->field}) == 1;
