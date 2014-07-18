@@ -106,17 +106,17 @@ class Base
      */
     public function save()
     {
-        $method = $this->isNew() ? 'insertObject' : 'updateObject';
-        $result = self::getConnection()->$method(
-            static::getTable(),
-            $this->attributes(true),
-            static::getPrimaryKey()
-        );
-        $this->is_persisted = true;
+        if($this->isNew()) {
+            $result = self::getConnection()->insertObject(static::getTable(), $this->attributes(true), static::getPrimaryKey());
 
-        if($result) {
-            $this->{static::getPrimaryKey()} = $result;
+            if($result) {
+                $this->{static::getPrimaryKey()} = $result;
+            }
+        } else {
+            $result = self::getConnection()->updateObject(static::getTable(), $this->attributes(true), static::getPrimaryKey());
         }
+
+        $this->is_persisted = true;
 
         return $result;
     }
