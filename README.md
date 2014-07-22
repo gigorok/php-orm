@@ -29,7 +29,6 @@ More details can be found [here](http://en.wikipedia.org/wiki/Active_record_patt
 - Transactions
 - Support for multiple adapters
 - Table's schema
-- Mass assignment protection
 
 ## Installation
 
@@ -92,6 +91,3 @@ the record in your database but you can still use the object if you need to.
 ## License
 
 Licensed under the MIT license.
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/gigorok/php-orm/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-

@@ -451,27 +451,17 @@ abstract class DBO
     function findObjects($table, $field, $value, $sortField = 'id', $sortAsc = true, $limit = null, $offset = 0, $class = 'stdClass')
 	{
 		$table = $this->escape($table);
-		if(is_array($field)) {
-			$where = [];
-			foreach ($field as $key => $v) {
-				$field[$key] = $this->escape($v);
-                if(is_null($value[$key])) {
-                    $where[] = $this->quote($field[$key]) . ' IS NULL';
-                    unset($value[$key]);
-                } else {
-                    $where[] = $this->quote($field[$key]) . ' = ?';
-                }
-			}
-			$where = implode(' AND ', $where);
-		} else {
-			$field = $this->escape($field);
-            if(is_null($value)) {
-                $where = $this->quote($field) . ' IS NULL';
-                unset($value);
+        $where = [];
+        foreach ($field as $key => $v) {
+            $field[$key] = $this->escape($v);
+            if(is_null($value[$key])) {
+                $where[] = $this->quote($field[$key]) . ' IS NULL';
+                unset($value[$key]);
             } else {
-			    $where = $this->quote($field) . ' = ?';
+                $where[] = $this->quote($field[$key]) . ' = ?';
             }
-		}
+        }
+        $where = implode(' AND ', $where);
 		$sortField = $this->escape($sortField);
 		$sql = 'SELECT * FROM ' . $this->quote($table) . ' WHERE '.$where.' ORDER BY '.$this->quote($sortField).' ' . ($sortAsc ? '' : 'DESC');
         if(!is_null($limit)) {

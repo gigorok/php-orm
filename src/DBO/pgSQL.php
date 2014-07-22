@@ -9,7 +9,7 @@ namespace ORM\DBO;
 
 class pgSQL extends \ORM\DBO
 {
-    public static $engine_name = 'postgresql';
+    public static $engine_name = 'pgsql';
 
 	protected function makeDsn()
 	{
