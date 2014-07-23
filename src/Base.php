@@ -51,6 +51,15 @@ class Base
     protected $pdo_types = [];
 
     /**
+     * Get PDO types of columns
+     * @return array
+     */
+    public function getPDOTypes()
+    {
+        return $this->pdo_types;
+    }
+
+    /**
      * Establish connection
      *
      * @param $connection Connection connection params
