@@ -26,11 +26,14 @@ class pgSQL extends \ORM\DBO
      * @param $table
      * @param array $obj
      * @param string $primaryKey
-     * @return bool
+     * @param $pdo_types
      * @throws \PDOException
+     * @return bool
      */
-    function insertObject($table, array $obj, $primaryKey = 'id')
+    function insert($table, array $obj, $primaryKey, $pdo_types)
     {
+        $pdo_types = array_values($pdo_types);
+
         if (!$this->isConnected()) $this->connect();
 
         $tableName = $this->escape($table);
@@ -59,7 +62,7 @@ class pgSQL extends \ORM\DBO
         $statement = $this->pdo->prepare($sql);
 
         for($i = 1; $i <= count($objValues); $i++) {
-            $statement->bindParam($i, $objValues[$i-1]);
+            $statement->bindParam($i, $objValues[$i-1], $pdo_types[$i-1]);
         }
 
         $result = $statement->execute();
