@@ -45,21 +45,6 @@ class Base
     protected $attributes = [];
 
     /**
-     * PSO Types container
-     * @var array
-     */
-    protected $pdo_types = [];
-
-    /**
-     * Get PDO types of columns
-     * @return array
-     */
-    public function getPDOTypes()
-    {
-        return $this->pdo_types;
-    }
-
-    /**
      * Establish connection
      *
      * @param $connection Connection connection params
@@ -130,13 +115,13 @@ class Base
         $attributes = $this->attributes(true);
 
         if($this->isNew()) {
-            $result = self::getConnection()->insert(static::getTable(), $attributes, static::getPrimaryKey(), $this->pdo_types);
+            $result = self::getConnection()->insert(static::getTable(), $attributes, static::getPrimaryKey());
 
             if($result) {
                 $this->{static::getPrimaryKey()} = $result;
             }
         } else {
-            $result = self::getConnection()->update(static::getTable(), $attributes, static::getPrimaryKey(), $this->pdo_types);
+            $result = self::getConnection()->update(static::getTable(), $attributes, static::getPrimaryKey());
         }
 
         $this->is_persisted = true;
@@ -158,7 +143,6 @@ class Base
             for ($i = 0; $i < $rs->columnCount(); $i++) {
                 $col = $rs->getColumnMeta($i);
                 $this->attributes[$col['name']] = isset($this->$col['name']) ? $this->$col['name'] : null;
-                $this->pdo_types[$col['name']] = $col['pdo_type'];
             }
         }
 

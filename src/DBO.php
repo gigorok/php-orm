@@ -216,14 +216,11 @@ abstract class DBO
      * @param $table
      * @param array $obj
      * @param string $primaryKey
-     * @param $pdo_types
      * @return bool
      */
-    function update($table, array $obj, $primaryKey, $pdo_types)
+    function update($table, array $obj, $primaryKey)
 	{
 		if (!$this->isConnected()) $this->connect();
-
-        $pdo_types = array_values($pdo_types);
 
         $tableName = $this->escape($table);
 
@@ -254,7 +251,7 @@ abstract class DBO
 		$paramValues = array_merge(array_values($obj), (array)$objId);
 
         for($i = 1; $i <= count($paramValues); $i++) {
-            $statement->bindParam($i, $paramValues[$i-1], $pdo_types[$i-1]);
+            $statement->bindParam($i, $paramValues[$i-1]);
         }
 
         //run the update on the object
@@ -267,14 +264,11 @@ abstract class DBO
      * @param $table
      * @param array $obj
      * @param string $primaryKey
-     * @param $pdo_types
      * @throws \PDOException
      * @return bool|string
      */
-    function insert($table, array $obj, $primaryKey, $pdo_types)
+    function insert($table, array $obj, $primaryKey)
 	{
-        $pdo_types = array_values($pdo_types);
-
 		if (!$this->isConnected()) {
             $this->connect();
         }
@@ -305,7 +299,7 @@ abstract class DBO
         $statement = $this->pdo->prepare($sql);
 
         for($i = 1; $i <= count($objValues); $i++) {
-            $statement->bindParam($i, $objValues[$i-1], $pdo_types[$i-1]);
+            $statement->bindParam($i, $objValues[$i-1]);
         }
 
         $result = $statement->execute();
