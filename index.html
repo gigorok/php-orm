@@ -1,0 +1,162 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Php-orm by gigorok</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+      <div id="header">
+        <nav>
+          <li class="fork"><a href="https://github.com/gigorok/php-orm">View On GitHub</a></li>
+          <li class="downloads"><a href="https://github.com/gigorok/php-orm/zipball/master">ZIP</a></li>
+          <li class="downloads"><a href="https://github.com/gigorok/php-orm/tarball/master">TAR</a></li>
+          <li class="title">DOWNLOADS</li>
+        </nav>
+      </div><!-- end header -->
+
+    <div class="wrapper">
+
+      <section>
+        <div id="title">
+          <h1>Php-orm</h1>
+          <p>PHP ORM library</p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="https://github.com/gigorok">gigorok</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
+        </div>
+
+        <h1>
+<a name="php-orm-library" class="anchor" href="#php-orm-library"><span class="octicon octicon-link"></span></a>PHP ORM library</h1>
+
+<h1></h1>
+
+<p>The open source ORM library on PHP.</p>
+
+<h2>
+<a name="introduction" class="anchor" href="#introduction"><span class="octicon octicon-link"></span></a>Introduction</h2>
+
+<p>The PHP-ORM follows ActiveRecord architectural pattern.</p>
+
+<p>More details can be found <a href="http://en.wikipedia.org/wiki/Active_record_pattern">here</a>.</p>
+
+<h2>
+<a name="minimum-requirements" class="anchor" href="#minimum-requirements"><span class="octicon octicon-link"></span></a>Minimum Requirements</h2>
+
+<ul>
+<li>PHP 5.4+</li>
+<li>PDO driver for your respective database</li>
+</ul><h2>
+<a name="supported-databases" class="anchor" href="#supported-databases"><span class="octicon octicon-link"></span></a>Supported Databases</h2>
+
+<ul>
+<li>MySQL</li>
+<li>PostgreSQL</li>
+</ul><h2>
+<a name="features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features</h2>
+
+<ul>
+<li>Finder methods</li>
+<li>Writer methods</li>
+<li>Relationships</li>
+<li>Validations</li>
+<li>Callbacks</li>
+<li>Transactions</li>
+<li>Support for multiple adapters</li>
+<li>Table's schema</li>
+</ul><h2>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
+
+<p>Use <a href="http://getcomposer.org">composer</a> to install PHP ORM library.
+Just add to your <code>composer.json</code> a text below and run the <code>php composer.phar update</code> command to install it:</p>
+
+<pre><code>{
+    "require": {
+        "gigorok/php-orm": "0.2.*"
+    }
+}
+</code></pre>
+
+<h2>
+<a name="basic-crud" class="anchor" href="#basic-crud"><span class="octicon octicon-link"></span></a>Basic CRUD</h2>
+
+<h3>
+<a name="retrieve" class="anchor" href="#retrieve"><span class="octicon octicon-link"></span></a>Retrieve</h3>
+
+<p>These are your basic methods to find and retrieve records from your database.</p>
+
+<pre><code>$post = Post::find(1);
+echo $post-&gt;title; # 'Test title!'
+echo $post-&gt;author_id; # 5
+
+# also the same since it is the first record in the db
+$post = Post::first();
+
+# finding using a conditions array
+$posts = Post::where('name=? or id &gt; ?', array('The Bridge Builder', 100));
+</code></pre>
+
+<h3>
+<a name="create" class="anchor" href="#create"><span class="octicon octicon-link"></span></a>Create</h3>
+
+<p>Here we create a new post by instantiating a new object and then invoking the save() method.</p>
+
+<pre><code>$post = new Post();
+$post-&gt;title = 'My first blog post!!';
+$post-&gt;author_id = 5;
+$post-&gt;save();
+# INSERT INTO `posts` (title,author_id) VALUES('My first blog post!!', 5)
+</code></pre>
+
+<h3>
+<a name="update" class="anchor" href="#update"><span class="octicon octicon-link"></span></a>Update</h3>
+
+<p>To update you would just need to find a record first and then change one of its attributes.</p>
+
+<pre><code>$post = Post::find(1);
+echo $post-&gt;title; # 'My first blog post!!'
+$post-&gt;title = 'Some real title';
+$post-&gt;save();
+# UPDATE `posts` SET title='Some real title' WHERE id=1
+
+$post-&gt;title = 'New real title';
+$post-&gt;author_id = 1;
+$post-&gt;save();
+# UPDATE `posts` SET title='New real title', author_id=1 WHERE id=1
+</code></pre>
+
+<h3>
+<a name="destroy" class="anchor" href="#destroy"><span class="octicon octicon-link"></span></a>Destroy</h3>
+
+<p>Deleting a record will not <em>destroy</em> the object. This means that it will call sql to delete
+the record in your database but you can still use the object if you need to.</p>
+
+<pre><code>$post = Post::find(1);
+$post-&gt;destroy();
+# DELETE FROM `posts` WHERE id=1
+echo $post-&gt;title; # 'New real title'
+</code></pre>
+
+<h2>
+<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h2>
+
+<p>Licensed under the MIT license.</p>
+      </section>
+
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
