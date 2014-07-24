@@ -17,17 +17,17 @@ use ORM\Validator;
 class Uniqueness extends Validator
 {
     /**
+     * @param \ORM\Model $record
      * @return bool|mixed
      */
-    function validate()
+    function validate(\ORM\Model $record)
     {
-        /** @var $class_name \ORM|Model */
-        $class_name = get_class($this->object);
+        $class_name = $record::className();
 
-        if($this->object->isPersisted()) {
-            return count($class_name::where($this->field . " = ? AND " . $class_name::getPrimaryKey() . " != ?", [$this->object->{$this->field}, $this->object->{$class_name::getPrimaryKey()}])) === 0;
+        if($record->isPersisted()) {
+            return count($class_name::where($this->field . " = ? AND " . $class_name::getPrimaryKey() . " != ?", [$record->{$this->field}, $record->{$class_name::getPrimaryKey()}])) === 0;
         } else {
-            return count($class_name::where($this->field . " = ?", [$this->object->{$this->field}])) === 0;
+            return count($class_name::where($this->field . " = ?", [$record->{$this->field}])) === 0;
         }
     }
 

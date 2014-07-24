@@ -11,7 +11,7 @@ class BaseTest extends \PHPUnit_Extensions_Database_TestCase
 {
     function setUp()
     {
-        $connection = new \ORM\Connection('mysql', DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASS);
+        $connection = new \ORM\Connection(DB_ADAPTER, DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASS);
         \ORM\Model::establishConnection($connection);
 
         parent::setUp();
@@ -29,7 +29,7 @@ class BaseTest extends \PHPUnit_Extensions_Database_TestCase
      */
     public function getConnection()
     {
-        return $this->createDefaultDBConnection(new \PDO('mysql:dbname=' . DB_NAME . ';host=' . DB_HOST . ';port=' . DB_PORT, DB_USER, DB_PASS));
+        return $this->createDefaultDBConnection(new \PDO(DB_ADAPTER . ':dbname=' . DB_NAME . ';host=' . DB_HOST . ';port=' . DB_PORT, DB_USER, DB_PASS));
     }
 
 }

@@ -69,7 +69,7 @@ trait Validations
      */
     protected function validatePresence($prop, $params = [], $message = null)
     {
-        $this->addValidator(new Validator\Presence($this, $prop, $params, $message));
+        $this->addValidator(new Validator\Presence($prop, $params, $message));
     }
 
     /**
@@ -80,7 +80,7 @@ trait Validations
      */
     protected function validateFormat($prop, $params, $message = null)
     {
-        $this->addValidator(new Validator\Format($this, $prop, $params, $message));
+        $this->addValidator(new Validator\Format($prop, $params, $message));
     }
 
     /**
@@ -91,7 +91,7 @@ trait Validations
      */
     protected function validateInclusion($prop, $params, $message = null)
     {
-        $this->addValidator(new Validator\Inclusion($this, $prop, $params, $message));
+        $this->addValidator(new Validator\Inclusion($prop, $params, $message));
     }
 
     /**
@@ -102,7 +102,7 @@ trait Validations
      */
     protected function validateExclusion($prop, $params, $message = null)
     {
-        $this->addValidator(new Validator\Exclusion($this, $prop, $params, $message));
+        $this->addValidator(new Validator\Exclusion($prop, $params, $message));
     }
 
     /**
@@ -113,7 +113,7 @@ trait Validations
      */
     protected function validateNumericality($prop, $params = [], $message = null)
     {
-        $this->addValidator(new Validator\Numericality($this, $prop, $params, $message));
+        $this->addValidator(new Validator\Numericality($prop, $params, $message));
     }
 
     /**
@@ -124,7 +124,7 @@ trait Validations
      */
     protected function validateLength($prop, $params, $message = null)
     {
-        $this->addValidator(new Validator\Length($this, $prop, $params, $message));
+        $this->addValidator(new Validator\Length($prop, $params, $message));
     }
 
     /**
@@ -135,7 +135,7 @@ trait Validations
      */
     protected function validateUniqueness($prop, $params = [], $message = null)
     {
-        $this->addValidator(new Validator\Uniqueness($this, $prop, $params, $message));
+        $this->addValidator(new Validator\Uniqueness($prop, $params, $message));
     }
 
     /**
@@ -146,7 +146,7 @@ trait Validations
      */
     protected function validateCustom($prop, $params = [], $message = null)
     {
-        $this->addValidator(new Validator\Custom($this, $prop, $params, $message));
+        $this->addValidator(new Validator\Custom($prop, $params, $message));
     }
 
     /**
@@ -155,7 +155,7 @@ trait Validations
     protected function runValidators()
     {
         foreach($this->validators as $validator) {
-            if($validator->validate() === false) {
+            if($validator->validate($this) === false) {
                 /** @var $this Model */
                 $this->addError($validator->getMessage(), $validator->getAttribute());
             }
@@ -192,7 +192,7 @@ trait Validations
 
             $class_name = '\\ORM\\Validator\\' . ucfirst($validator_name);
 
-            $this->validateWith(new $class_name($this, $field, $validator_params, $message));
+            $this->validateWith(new $class_name($field, $validator_params, $message));
         }
 
         $this->runValidators();

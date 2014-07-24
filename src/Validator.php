@@ -17,11 +17,6 @@ abstract class Validator
     /**
      * @var
      */
-    protected $object;
-
-    /**
-     * @var
-     */
     protected $field;
 
     /**
@@ -35,23 +30,22 @@ abstract class Validator
     protected $message = null;
 
     /**
-     * @param $object
      * @param $field
      * @param array $params
      * @param null $message
      */
-    function __construct($object, $field, $params = [], $message = null)
+    function __construct($field, $params = [], $message = null)
     {
         $this->field = $field;
-        $this->object = $object;
         $this->params = $params;
         $this->message = $message;
     }
 
     /**
+     * @param Model $record
      * @return mixed
      */
-    abstract function validate();
+    abstract function validate(\ORM\Model $record);
 
     /**
      * @return mixed

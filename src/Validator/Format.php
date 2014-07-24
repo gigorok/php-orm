@@ -17,16 +17,17 @@ use ORM\Validator;
 class Format extends Validator
 {
     /**
+     * @param \ORM\Model $record
      * @return bool|mixed
      * @throws \ORM\Exception
      */
-    function validate()
+    function validate(\ORM\Model $record)
     {
         if(self::isInValidRegExp($this->params['with'])) {
             throw new \ORM\Exception("Regexp is invalid");
         }
 
-        return preg_match($this->params['with'], $this->object->{$this->field}) == 1;
+        return preg_match($this->params['with'], $record->{$this->field}) == 1;
     }
 
     /**

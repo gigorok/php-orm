@@ -17,11 +17,12 @@ use ORM\Validator;
 class Presence extends Validator
 {
     /**
+     * @param \ORM\Model $record
      * @return bool|mixed
      */
-    function validate()
+    function validate(\ORM\Model $record)
     {
-        return !(is_null($this->object->{$this->field}) || (trim($this->object->{$this->field}) === ''));
+        return !(is_null($record->{$this->field}) || (trim($record->{$this->field}) === ''));
     }
 
     /**

@@ -16,26 +16,31 @@ use ORM\Validator;
  */
 class Length extends Validator
 {
+    protected $record = null;
+
     /**
+     * @param \ORM\Model $record
      * @return bool|mixed
      * @throws \ORM\Exception
      */
-    public function validate()
+    public function validate(\ORM\Model $record)
     {
+        $this->record = $record;
+
         if(isset($this->params['minimum']) && is_numeric($this->params['minimum'])) {
-            return !(strlen($this->object->{$this->field}) < $this->params['minimum']);
+            return !(strlen($record->{$this->field}) < $this->params['minimum']);
         }
 
         if(isset($this->params['maximum']) && is_numeric($this->params['maximum'])) {
-            return !(strlen($this->object->{$this->field}) > $this->params['maximum']);
+            return !(strlen($record->{$this->field}) > $this->params['maximum']);
         }
 
         if(isset($this->params['in']) && is_array($this->params['in'])) {
-            return !(strlen($this->object->{$this->field}) < $this->params['in'][0]) && !(strlen($this->object->{$this->field}) > $this->params['in'][1]);
+            return !(strlen($record->{$this->field}) < $this->params['in'][0]) && !(strlen($record->{$this->field}) > $this->params['in'][1]);
         }
 
         if(isset($this->params['is']) && is_numeric($this->params['is'])) {
-            return (strlen($this->object->{$this->field}) === $this->params['is']);
+            return (strlen($record->{$this->field}) === $this->params['is']);
         }
 
         throw new \ORM\Exception('Invalid length constraint options');
@@ -56,7 +61,7 @@ class Length extends Validator
             }
 
             if(isset($this->params['in']) && is_array($this->params['in'])) {
-                return (strlen($this->object->{$this->field}) < $this->params['in'][0] ? 'is too short' : 'is too long');
+                return (strlen($this->record->{$this->field}) < $this->params['in'][0] ? 'is too short' : 'is too long');
             }
 
             if(isset($this->params['is']) && is_numeric($this->params['is'])) {

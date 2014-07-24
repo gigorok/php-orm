@@ -17,11 +17,12 @@ use ORM\Validator;
 class Exclusion extends Validator
 {
     /**
+     * @param \ORM\Model $record
      * @return bool|mixed
      */
-    function validate()
+    function validate(\ORM\Model $record)
     {
-        return !in_array($this->object->{$this->field}, $this->params['in'], 1);
+        return !in_array($record->{$this->field}, $this->params['in'], 1);
     }
 
     /**

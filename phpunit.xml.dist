@@ -26,6 +26,7 @@
     </filter>
 
     <php>
+        <const name="DB_ADAPTER" value="mysql"/>
         <const name="DB_HOST" value="127.0.0.1"/>
         <const name="DB_USER" value="travis"/>
         <const name="DB_PASS" value=""/>

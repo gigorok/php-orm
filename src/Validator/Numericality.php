@@ -17,11 +17,12 @@ use ORM\Validator;
 class Numericality extends Validator
 {
     /**
+     * @param \ORM\Model $record
      * @return bool|mixed
      */
-    function validate()
+    function validate(\ORM\Model $record)
     {
-        return is_numeric($this->object->{$this->field});
+        return is_numeric($record->{$this->field});
     }
 
     /**

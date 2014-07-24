@@ -17,11 +17,12 @@ use ORM\Validator;
 class Custom extends Validator
 {
     /**
+     * @param \ORM\Model $record
      * @return mixed
      */
-    function validate()
+    function validate(\ORM\Model $record)
     {
-        return call_user_func($this->params['closure'], $this->object->{$this->field});
+        return call_user_func($this->params['closure'], $record);
     }
 
 }
