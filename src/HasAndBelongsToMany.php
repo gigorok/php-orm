@@ -131,7 +131,7 @@ class HasAndBelongsToMany
         } else if(is_numeric($payload)){
             $id = $payload;
         } else {
-            throw new \ORM\Exception('Payload ' . $payload . ' is invalid');
+            throw new \ORM\Exception('Payload is invalid');
         }
 
         $model = $this->model;
@@ -156,15 +156,12 @@ class HasAndBelongsToMany
     /**
      * Insert and relate objects
      *
-     * @param  array $rows
+     * @param  $rows
      * @return array
      */
-    function insert(array $rows)
+    function insert($rows)
     {
-        // normalize rows
-        if(!is_array($rows)) {
-            $rows = [$rows];
-        }
+        $rows = Utils::arrayWrap($rows);
 
         $result = [];
 
@@ -193,7 +190,7 @@ class HasAndBelongsToMany
         } else if(is_numeric($payload)){
             $id = $payload;
         } else {
-            throw new \ORM\Exception('Payload ' . $payload . ' is invalid');
+            throw new \ORM\Exception('Payload is invalid');
         }
 
         $pivot = $this->pivot();
@@ -218,9 +215,8 @@ class HasAndBelongsToMany
      */
     function sync($ids = [])
     {
-        if(!is_array($ids)) {
-            $ids = [$ids];
-        }
+        $ids = Utils::arrayWrap($ids);
+
         // clear data
         $this->delete();
         // attach new ids
@@ -301,7 +297,6 @@ PIVOT;
         } else {
             return $this->pivot()->findOne([$this->getForeignKey(), $this->getForeignKeyRelated()], [$this->model->$pKey, $id])->destroy();
         }
-
     }
 
 }
