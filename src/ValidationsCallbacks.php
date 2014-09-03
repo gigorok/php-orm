@@ -11,6 +11,18 @@ namespace ORM;
 trait ValidationsCallbacks
 {
     /**
+     * Add Callbacks module supporting
+     */
+    use Callbacks {
+        save as callbacksSave;
+    }
+
+    /**
+     * Add Validations module supporting
+     */
+    use Validations;
+
+    /**
      * Call before save (if validation was permitted), create, update actions
      *
      * @return bool
@@ -48,6 +60,6 @@ trait ValidationsCallbacks
             }
         }
 
-        return parent::save();
+        return $this->callbacksSave();
     }
 }

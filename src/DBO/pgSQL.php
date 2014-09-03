@@ -48,13 +48,13 @@ class pgSQL extends \ORM\DBO
 
         $preparedParamsArr = [];
         foreach ($obj as $key => $value) {
-            $preparedParamsArr[] = $this->quote($this->escape($key));
+            $preparedParamsArr[] = $this->escape($key);
         }
 
         $preparedParamsStr = implode(', ', $preparedParamsArr);
         $preparedValuesStr = implode(', ', array_fill(0, count($objValues), '?'));
 
-        $sql = 'INSERT INTO ' . $this->quote($tableName) . ' (' . $preparedParamsStr . ') VALUES (' . $preparedValuesStr . ') RETURNING ' . $primaryKey . ';';
+        $sql = 'INSERT INTO ' . $tableName . ' (' . $preparedParamsStr . ') VALUES (' . $preparedValuesStr . ') RETURNING ' . $primaryKey . ';';
 
         $statement = $this->pdo->prepare($sql);
 

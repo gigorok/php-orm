@@ -358,7 +358,8 @@ abstract class DBO
 		$results = [];
 
 		if (is_object($statement)) {
-			while ($newObj = $statement->fetchObject($class)) {
+			while ($params = $statement->fetch(\PDO::FETCH_ASSOC)) {
+                $newObj = new $class($params);
                 $newObj->is_persisted = true;
 				$results[] = $newObj;
 			}
@@ -383,10 +384,11 @@ abstract class DBO
 		$results = [];
 
 		if (is_object($statement)) {
-			while ($newObj = $statement->fetchObject($class)) {
+            while ($params = $statement->fetch(\PDO::FETCH_ASSOC)) {
+                $newObj = new $class($params);
                 $newObj->is_persisted = true;
-				$results[] = $newObj;
-			}
+                $results[] = $newObj;
+            }
 		}
 
 		return $results;
@@ -409,7 +411,14 @@ abstract class DBO
         $id = intval($id);
         $statement->bindParam(':id', $id);
         $statement->execute();
-        return $statement->fetchObject($class);
+
+        $params = $statement->fetch(\PDO::FETCH_ASSOC);
+
+        if($params === false) {
+            return null;
+        }
+
+        return new $class($params);
 	}
 
     /**
@@ -431,14 +440,15 @@ abstract class DBO
             throw new \PDOException($errObj[2]);
         }
 
-		$resultObj = $statement->fetchObject($class);
+        $params = $statement->fetch(\PDO::FETCH_ASSOC);
 
-		if ($resultObj === false) {
-			return null;
-		} else {
-            $resultObj->is_persisted = true;
-			return $resultObj;
-		}
+        if($params === false) {
+            return null;
+        }
+
+		$resultObj = new $class($params);
+        $resultObj->is_persisted = true;
+        return $resultObj;
 	}
 
     /**

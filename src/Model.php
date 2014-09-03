@@ -8,32 +8,12 @@
 
 namespace ORM;
 
-/**
- * This class needs to realize chain calls because PHP is ugly
- * (chain calls is: ValidationCallbacks, Callbacks, Base)
- *
- * Class CallbackableModel
- * @package ORM
- */
-abstract class CallbackableModel extends Base
-{
-    /**
-     * Add Callbacks module supporting
-     */
-    use Callbacks;
-}
-
-class Model extends CallbackableModel
+class Model extends Base
 {
     /**
      * Add ValidationsCallbacks module supporting
      */
     use ValidationsCallbacks;
-
-    /**
-     * Add Validations module supporting
-     */
-    use Validations;
 
     /**
      * Add Associations module supporting
@@ -49,4 +29,9 @@ class Model extends CallbackableModel
      * Add Schemas module supporting
      */
     use Schemas;
+
+    /**
+     * Add Dirty module supporting
+     */
+//    use Dirty;
 }

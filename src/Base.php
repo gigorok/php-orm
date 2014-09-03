@@ -39,12 +39,6 @@ class Base
     public $is_persisted = false;
 
     /**
-     * Attributes container
-     * @var array
-     */
-    protected $attributes = [];
-
-    /**
      * Establish connection
      *
      * @param $connection Connection connection params
@@ -64,19 +58,30 @@ class Base
         return is_null(static::$primary_key) ? 'id' : static::$primary_key;
     }
 
-    /**
-     * Get property of instance magically
-     *
-     * @param string $property
-     * @return string
-     */
-    public function __get($property)
+    function __set($attr, $value)
     {
-        if(in_array($property, array_keys($this->attributes()))) {
-            return $this->$property = $this->attributes()[$property];
+        return $this->setAttribute($attr, $value);
+    }
+
+    function __get($attr)
+    {
+        return $this->getAttribute($attr);
+    }
+
+    function setAttribute($attr, $value)
+    {
+        return $this->$attr = $value;
+    }
+
+    function getAttribute($attr)
+    {
+        $attrs = $this->attributes();
+
+        if(in_array($attr, array_keys($attrs))) {
+            return $this->$attr = $attrs[$attr];
         } else {
             $class_name = static::className();
-            trigger_error("Undefined property $property for $class_name", E_USER_NOTICE);
+            trigger_error("Undefined property $attr for $class_name", E_USER_NOTICE);
         }
     }
 
@@ -108,11 +113,16 @@ class Base
     /**
      * Save current object to database
      *
+     * @throws Exception
      * @return bool
      */
     public function save()
     {
-        $attributes = $this->attributes(true);
+        $attributes = $this->attributes();
+
+        if(empty($attributes)) {
+            throw new Exception('No attributes to save object');
+        }
 
         if($this->isNew()) {
             $result = self::getConnection()->insert(static::getTable(), $attributes, static::getPrimaryKey());
@@ -132,21 +142,20 @@ class Base
     /**
      * Returns an array of all the attributes with their names as keys and the values of the attributes as values.
      *
-     * @param bool $reload
      * @return string[]
      */
-    public function attributes($reload = false)
+    public function attributes()
     {
-        if($reload || empty($this->attributes)) {
-            $table_name = static::getTable();
-            $rs = self::getConnection()->getPDO()->query("SELECT * FROM {$table_name} LIMIT 0");
-            for ($i = 0; $i < $rs->columnCount(); $i++) {
-                $col = $rs->getColumnMeta($i);
-                $this->attributes[$col['name']] = isset($this->$col['name']) ? $this->$col['name'] : null;
-            }
+        $attrs = [];
+
+        $table_name = static::getTable();
+        $rs = self::getConnection()->getPDO()->query("SELECT * FROM {$table_name} LIMIT 0");
+        for ($i = 0; $i < $rs->columnCount(); $i++) {
+            $col = $rs->getColumnMeta($i);
+            $attrs[$col['name']] = isset($this->$col['name']) ? $this->$col['name'] : null;
         }
 
-        return $this->attributes;
+        return $attrs;
     }
 
     /**
