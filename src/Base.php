@@ -68,6 +68,21 @@ class Base
         return $this->getAttribute($attr);
     }
 
+    function __isset($attr)
+    {
+        return $this->isSetAttribute($attr);
+    }
+
+    /**
+     * For compatibility with mixed modeles
+     * @param $attr
+     * @return bool
+     */
+    function isSetAttribute($attr)
+    {
+        return false;
+    }
+
     function setAttribute($attr, $value)
     {
         return $this->$attr = $value;

@@ -33,5 +33,5 @@ class Model extends Base
     /**
      * Add Dirty module supporting
      */
-//    use Dirty;
+    use Dirty;
 }

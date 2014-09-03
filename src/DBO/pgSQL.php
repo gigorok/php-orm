@@ -35,7 +35,7 @@ class pgSQL extends \ORM\DBO
 
         $tableName = $this->escape($table);
 
-        if(is_null($obj[$primaryKey])) { // default primary key value handled by database
+        if(isset($obj[$primaryKey]) && is_null($obj[$primaryKey])) { // default primary key value handled by database
             unset($obj[$primaryKey]);
         }
 
@@ -55,6 +55,8 @@ class pgSQL extends \ORM\DBO
         $preparedValuesStr = implode(', ', array_fill(0, count($objValues), '?'));
 
         $sql = 'INSERT INTO ' . $tableName . ' (' . $preparedParamsStr . ') VALUES (' . $preparedValuesStr . ') RETURNING ' . $primaryKey . ';';
+
+
 
         $statement = $this->pdo->prepare($sql);
 

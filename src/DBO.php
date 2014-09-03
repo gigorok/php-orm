@@ -245,7 +245,8 @@ abstract class DBO
 
 		$preparedParamStr = implode(',', $preparedParamArr);
 
-		$statement = $this->pdo->prepare('UPDATE ' . $this->quote($tableName) . ' SET ' . $preparedParamStr . ' WHERE ' . $this->quote($primaryKey) . '=?;');
+        $sql = 'UPDATE ' . $this->quote($tableName) . ' SET ' . $preparedParamStr . ' WHERE ' . $this->quote($primaryKey) . '=?;';
+		$statement = $this->pdo->prepare($sql);
 
 		//merge the parameters and values
 		$paramValues = array_merge(array_values($obj), (array)$objId);
