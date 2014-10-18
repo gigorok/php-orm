@@ -29,9 +29,4 @@ class Model extends Base
      * Add Schemas module supporting
      */
     use Schemas;
-
-    /**
-     * Add Dirty module supporting
-     */
-    use Dirty;
 }
